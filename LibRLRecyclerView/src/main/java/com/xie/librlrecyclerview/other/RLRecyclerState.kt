@@ -1,4 +1,4 @@
-package com.xie.librlrecyclerview
+package com.xie.librlrecyclerview.other
 
 /**
  * Created by Anthony on 2020/9/4.

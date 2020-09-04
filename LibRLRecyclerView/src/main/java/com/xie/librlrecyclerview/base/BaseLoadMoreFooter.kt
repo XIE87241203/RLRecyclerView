@@ -3,18 +3,16 @@ package com.xie.librlrecyclerview.base
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.RelativeLayout
-import com.xie.librlrecyclerview.RLRecyclerState
+import com.xie.librlrecyclerview.other.LoadMoreFooterState
+import com.xie.librlrecyclerview.other.OnLoadMoreListener
 
 /**
  * Created by Anthony on 2020/9/4.
  * Describe:
  */
 abstract class BaseLoadMoreFooter : RelativeLayout {
-     var state: RLRecyclerState = RLRecyclerState.NORMAL
-        set(value) {
-            setLoadMoreState(value)
-            field = value
-        }
+    var onLoadMoreListener: OnLoadMoreListener? = null
+    internal var state: LoadMoreFooterState = LoadMoreFooterState.NORMAL
 
     constructor(context: Context) : super(context) {
         initView()
@@ -35,7 +33,7 @@ abstract class BaseLoadMoreFooter : RelativeLayout {
     private fun initView() {
         setPadding(0, 0, 0, 1)
         init()
-        state = RLRecyclerState.NORMAL
+        setLoadMoreState(LoadMoreFooterState.NORMAL)
     }
 
     /**
@@ -43,22 +41,46 @@ abstract class BaseLoadMoreFooter : RelativeLayout {
      *
      * @param state One of [.STATE_LOADING], [.STATE_LOAD_FINISH],[.STATE_LOAD_ERROR], or [.STATE_NO_MORE].
      */
-    open fun setLoadMoreState(state: RLRecyclerState) {
+    open fun setLoadMoreState(state: LoadMoreFooterState) {
+        this.state = state
         when (state) {
-            RLRecyclerState.NORMAL -> showLoadMoreFinish()
-            RLRecyclerState.LOAD_MORE_LOADING -> showLoading()
-            RLRecyclerState.LOAD_MORE_ERROR -> showLoadMoreError()
-            RLRecyclerState.LOAD_MORE_LAST_PAGE -> showNoMoreView()
+            LoadMoreFooterState.NORMAL -> onLoadMoreFinish()
+            LoadMoreFooterState.LOAD_MORE_LOADING -> {
+                onLoading()
+                onLoadMoreListener?.onLoadMore()
+            }
+            LoadMoreFooterState.LOAD_MORE_ERROR -> onLoadMoreError()
+            LoadMoreFooterState.LOAD_MORE_LAST_PAGE -> onNoMore()
         }
+    }
+
+    fun startLoadMore() {
+        setLoadMoreState(LoadMoreFooterState.LOAD_MORE_LOADING)
+    }
+
+    fun finishLoadMore() {
+        setLoadMoreState(LoadMoreFooterState.NORMAL)
+    }
+
+    fun showLoadMoreError(){
+        setLoadMoreState(LoadMoreFooterState.LOAD_MORE_ERROR)
+    }
+
+    fun showLastPage(){
+        setLoadMoreState(LoadMoreFooterState.LOAD_MORE_LAST_PAGE)
     }
 
     protected abstract fun init()
 
-    protected abstract fun showLoading()
+    protected abstract fun onLoading()
 
-    protected abstract fun showLoadMoreFinish()
+    protected abstract fun onLoadMoreFinish()
 
-    protected abstract fun showNoMoreView()
+    protected  abstract fun onNoMore()
 
-    protected abstract fun showLoadMoreError()
+    protected abstract fun onLoadMoreError()
+
+    fun getState():LoadMoreFooterState{
+        return state
+    }
 }

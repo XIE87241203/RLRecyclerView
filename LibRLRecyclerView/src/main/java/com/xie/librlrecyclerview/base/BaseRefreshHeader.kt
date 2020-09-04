@@ -8,7 +8,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import com.xie.librlrecyclerview.RefreshHeaderState
+import com.xie.librlrecyclerview.other.RefreshHeaderState
 import com.xie.librlrecyclerview.other.LogUtil
 import com.xie.librlrecyclerview.other.OnRefreshListener
 
@@ -24,7 +24,7 @@ abstract class BaseRefreshHeader : LinearLayout {
     }
 
     private var releaseAnimator: ValueAnimator? = null
-    var state = RefreshHeaderState.REFRESH_NORMAL
+    internal var state = RefreshHeaderState.REFRESH_NORMAL
     var allOffset: Double = 0.0//当前总位移
     private var isAnimatorCancel = false
     var onRefreshListener: OnRefreshListener? = null
@@ -64,14 +64,14 @@ abstract class BaseRefreshHeader : LinearLayout {
     /**
      * 触发刷新UI显示
      */
-    internal fun startRefresh(){
+    internal fun startRefresh() {
         val startHeight = layoutParams.height
         val endHeight = getRefreshingContentHeight()
         updateHeaderState(RefreshHeaderState.REFRESH_PREPARE)
         showHeightAnimator(startHeight.toFloat(), endHeight.toFloat())
     }
 
-    internal fun finishRefresh(){
+    internal fun finishRefresh() {
         updateHeaderState(RefreshHeaderState.REFRESH_FINISH)
         onRelease()
     }
@@ -166,6 +166,7 @@ abstract class BaseRefreshHeader : LinearLayout {
                             RefreshHeaderState.REFRESH_FINISH -> updateHeaderState(
                                 RefreshHeaderState.REFRESH_NORMAL
                             )
+                            else ->{}
                         }
                     } else {
                         isAnimatorCancel = false
@@ -187,13 +188,13 @@ abstract class BaseRefreshHeader : LinearLayout {
         return allOffset
     }
 
-    open fun updateHeaderState(state: RefreshHeaderState) {
+    protected open fun updateHeaderState(state: RefreshHeaderState) {
         this.state = state
         when (state) {
             RefreshHeaderState.REFRESH_NORMAL -> onRefreshNormal()
             RefreshHeaderState.REFRESH_PREPARE -> onRefreshPrepare()
             RefreshHeaderState.REFRESH_FINISH -> onRefreshFinish()
-            RefreshHeaderState.REFRESHING ->{
+            RefreshHeaderState.REFRESHING -> {
                 onRefreshListener?.onRefresh()
                 onRefreshing()
             }
@@ -217,4 +218,8 @@ abstract class BaseRefreshHeader : LinearLayout {
      */
     abstract fun getMaxHeight(): Int
     abstract fun getContentView(context: Context?): View
+
+    fun getState(): RefreshHeaderState {
+        return state
+    }
 }
