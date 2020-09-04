@@ -1,2 +1,3 @@
+include ':LibRLRecyclerView'
 include ':app'
 rootProject.name = "RLRecyclerView"
