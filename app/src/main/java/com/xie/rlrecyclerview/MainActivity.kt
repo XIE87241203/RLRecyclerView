@@ -3,12 +3,13 @@ package com.xie.rlrecyclerview
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import androidx.recyclerview.widget.LinearLayoutManager
+import android.widget.RadioGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.xie.librlrecyclerview.model.UpdateList
 import com.xie.librlrecyclerview.other.OnLoadMoreListener
 import com.xie.librlrecyclerview.other.OnRefreshListener
+import com.xie.librlrecyclerview.other.RLRecyclerState
 import com.xie.librlrecyclerview.other.UpdateType
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -16,37 +17,80 @@ class MainActivity : AppCompatActivity() {
     lateinit var adapter: MyAdapter
     var page = 1
     val listData = ArrayList<String>()
+    var testType = TestType.TEST_NORMAL
+    var showTestResult = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        rg_test.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.rb_test_normal -> {
+                    testType = TestType.TEST_NORMAL
+                    rl_rv.startRefresh()
+                }
+                R.id.rb_test_load_more_error -> {
+                    testType = TestType.TEST_LOAD_MORE_ERROR
+                    rl_rv.startRefresh()
+                }
+                R.id.rb_test_last_page -> {
+                    testType = TestType.TEST_LOAD_MORE_LAST_PAGE
+                    rl_rv.startRefresh()
+                }
+            }
+        }
+
         rl_rv.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
         adapter = MyAdapter()
         rl_rv.adapter = adapter
         rl_rv.refreshEnable = true
         rl_rv.onRefreshListener = object : OnRefreshListener {
             override fun onRefresh() {
+                //刷新
                 Handler().postDelayed({
                     page = 1
                     listData.clear()
                     listData.addAll(getListData(page, 30))
-                    adapter.upDateList(UpdateList(UpdateType.REFRESH_LIST, listData))
-                    rl_rv.finishRefresh()
+                    //用替换数据的方式刷新列表
+                    adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
+                    rl_rv.setRLState(RLRecyclerState.NORMAL)
+                    showTestResult = false
                 }, 2000)
             }
         }
         rl_rv.autoLoadMoreEnable = true
         rl_rv.onLoadMoreListener = object : OnLoadMoreListener {
             override fun onLoadMore() {
+                //加载更多
                 Handler().postDelayed({
-                    page++
-                    listData.addAll(getListData(page, 30))
-                    adapter.upDateList(UpdateList(UpdateType.INSERT_DATA, listData))
-                    rl_rv.finishLoadMore()
+                    //测试状态只会显示在第一次加载下一页
+                    if (!showTestResult && testType != TestType.TEST_NORMAL) {
+                        when (testType) {
+                            TestType.TEST_LOAD_MORE_ERROR -> {
+                                rl_rv.setRLState(RLRecyclerState.LOAD_MORE_ERROR)
+                            }
+                            TestType.TEST_LOAD_MORE_LAST_PAGE -> {
+                                loadNextPage()
+                                rl_rv.setRLState(RLRecyclerState.LOAD_MORE_LAST_PAGE)
+                            }
+                        }
+                        showTestResult = true
+                    } else {
+                        loadNextPage()
+                        rl_rv.setRLState(RLRecyclerState.NORMAL)
+                    }
                 }, 2000)
             }
         }
         rl_rv.startRefresh()
+    }
+
+    fun loadNextPage() {
+        page++
+        listData.addAll(getListData(page, 30))
+        //用插入数据的方式刷新列表
+        adapter.updateList(UpdateList(UpdateType.INSERT_DATA, listData))
     }
 
     fun getListData(page: Int, size: Int): ArrayList<String> {

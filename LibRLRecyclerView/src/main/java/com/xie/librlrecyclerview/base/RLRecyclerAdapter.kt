@@ -72,7 +72,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         return dataHelper.listData.size
     }
 
-    fun upDateList(updateList: UpdateList<T>) {
+    fun updateList(updateList: UpdateList<T>) {
         dataHelper.setUpdateList(this, updateList)
     }
 

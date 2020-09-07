@@ -92,6 +92,26 @@ class RLRecyclerView : RecyclerView {
         })
     }
 
+    /**
+     * 根据状态刷新列表头部，尾部显示UI
+     */
+    fun setRLState(state: RLRecyclerState) {
+        when (state) {
+            RLRecyclerState.NORMAL -> {
+                refreshHeader.finishRefresh()
+                loadMoreFooter.finishLoadMore()
+            }
+            RLRecyclerState.LOAD_MORE_ERROR -> {
+                refreshHeader.finishRefresh()
+                loadMoreFooter.showLoadMoreError()
+            }
+            RLRecyclerState.LOAD_MORE_LAST_PAGE -> {
+                refreshHeader.finishRefresh()
+                loadMoreFooter.showLastPage()
+            }
+        }
+    }
+
     override fun setAdapter(adapter: Adapter<*>?) {
         super.setAdapter(adapter)
         if (adapter is RLRecyclerAdapter<*>) {
@@ -181,6 +201,7 @@ class RLRecyclerView : RecyclerView {
      */
     fun startRefresh() {
         refreshHeader.startRefresh()
+        scrollToPosition(0)
     }
 
     fun finishRefresh() {
