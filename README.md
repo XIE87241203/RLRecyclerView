@@ -45,6 +45,7 @@ class MyAdapter : RLRecyclerAdapter<String>() {
 ```
 
 3、为RLRecyclerView设置Adapter并初始化对应设置
+-----
 ```
  rl_rv.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
  rl_rv.adapter = MyAdapter()
@@ -75,4 +76,14 @@ class MyAdapter : RLRecyclerAdapter<String>() {
           rl_rv.setRLState(RLRecyclerState.NORMAL)
       }
   }
+```
+
+4、添加Header和Footer
+-----
+注意**在RLRecyclerView设置Adapter之后**添加Header或Footer需要调用 **notifyItemInserted(position:Int)** 或 **notifyDataSetChanged()** 来通知列表更新
+```
+  //添加Header
+  adapter.addHeaderView(TextView(this))
+  //添加Footer
+  adapter.addFooterView(TextView(this))
 ```
