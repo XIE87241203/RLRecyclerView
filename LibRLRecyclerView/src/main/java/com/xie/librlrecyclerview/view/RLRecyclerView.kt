@@ -17,7 +17,7 @@ import com.xie.librlrecyclerview.other.*
  * Describe:
  */
 class RLRecyclerView : RecyclerView {
-    var rlAdapter: RLRecyclerAdapter? = null
+    var rlAdapter: RLRecyclerAdapter<*>? = null
     var refreshHeader: BaseRefreshHeader //刷新头部
         set(value) {
             field = value
@@ -94,7 +94,7 @@ class RLRecyclerView : RecyclerView {
 
     override fun setAdapter(adapter: Adapter<*>?) {
         super.setAdapter(adapter)
-        if (adapter is RLRecyclerAdapter) {
+        if (adapter is RLRecyclerAdapter<*>) {
             rlAdapter = adapter
             adapter.setRefreshHeader(refreshHeader)
             adapter.setLoadMoreFooter(loadMoreFooter)
@@ -136,7 +136,7 @@ class RLRecyclerView : RecyclerView {
      * 检测是否需要自动加载
      * 当滑动到底部的时候开始自动加载更多
      */
-    private fun checkTheBottomLoadMore(adapter: RLRecyclerAdapter) {
+    private fun checkTheBottomLoadMore(adapter: RLRecyclerAdapter<*>) {
         if (layoutManager == null) return
         val startLoadIndex: Int =
             adapter.getRealItemCount() - loadMoreKey

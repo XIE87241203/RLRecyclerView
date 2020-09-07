@@ -6,13 +6,16 @@ import android.os.Handler
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.xie.librlrecyclerview.model.UpdateList
 import com.xie.librlrecyclerview.other.OnLoadMoreListener
 import com.xie.librlrecyclerview.other.OnRefreshListener
+import com.xie.librlrecyclerview.other.UpdateType
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var adapter: MyAdapter
     var page = 1
+    val listData = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +28,9 @@ class MainActivity : AppCompatActivity() {
             override fun onRefresh() {
                 Handler().postDelayed({
                     page = 1
-                    adapter.setListData(getListData(page, 30))
-                    adapter.notifyDataSetChanged()
+                    listData.clear()
+                    listData.addAll(getListData(page, 30))
+                    adapter.upDateList(UpdateList(UpdateType.REFRESH_LIST, listData))
                     rl_rv.finishRefresh()
                 }, 2000)
             }
@@ -36,8 +40,8 @@ class MainActivity : AppCompatActivity() {
             override fun onLoadMore() {
                 Handler().postDelayed({
                     page++
-                    adapter.addListData(getListData(page, 30))
-                    adapter.notifyDataSetChanged()
+                    listData.addAll(getListData(page, 30))
+                    adapter.upDateList(UpdateList(UpdateType.INSERT_DATA, listData))
                     rl_rv.finishLoadMore()
                 }, 2000)
             }

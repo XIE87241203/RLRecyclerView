@@ -7,12 +7,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.xie.librlrecyclerview.model.RLListDataHelper
+import com.xie.librlrecyclerview.model.UpdateList
 
 /**
  * Created by Anthony on 2020/9/4.
  * Describe:
  */
-abstract class RLRecyclerAdapter : RecyclerView.Adapter<BaseRecyclerViewHolder>() {
+abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolder>() {
     companion object {
         const val BASE_ITEM_TYPE_HEADER = 100001
         const val SPECIAL_ITEM_TYPE_REFRESH_HEADER = 100000
@@ -24,12 +26,11 @@ abstract class RLRecyclerAdapter : RecyclerView.Adapter<BaseRecyclerViewHolder>(
     val mHeaderViews = SparseArrayCompat<View>()
     val mFootViews = SparseArrayCompat<View>()
 
+    private val dataHelper = RLListDataHelper<T>()
+
     abstract fun onCreateViewHolderNew(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder
     abstract fun onBindViewHolderNew(holder: BaseRecyclerViewHolder, position: Int)
     abstract fun getItemViewTypeNew(position: Int): Int
-
-    //获取内容Item数量
-    abstract fun getRealItemCount(): Int
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder {
         val headerView = mHeaderViews[viewType]
@@ -64,6 +65,15 @@ abstract class RLRecyclerAdapter : RecyclerView.Adapter<BaseRecyclerViewHolder>(
             return
         }
         onBindViewHolderNew(holder, position - getHeadersCount())
+    }
+
+    //获取内容Item数量
+    fun getRealItemCount(): Int {
+        return dataHelper.listData.size
+    }
+
+    fun upDateList(updateList: UpdateList<T>) {
+        dataHelper.setUpdateList(this, updateList)
     }
 
     override fun getItemCount(): Int {
@@ -101,6 +111,10 @@ abstract class RLRecyclerAdapter : RecyclerView.Adapter<BaseRecyclerViewHolder>(
                 }
             }
         }
+    }
+
+    fun getListData(): ArrayList<T> {
+        return dataHelper.listData
     }
 
     /**

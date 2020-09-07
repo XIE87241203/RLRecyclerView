@@ -9,17 +9,7 @@ import com.xie.librlrecyclerview.base.RLRecyclerAdapter
  * Created by Anthony on 2020/9/4.
  * Describe:
  */
-class MyAdapter : RLRecyclerAdapter() {
-    private val listData: ArrayList<String> = ArrayList()
-
-    fun setListData(newData: ArrayList<String>) {
-        listData.clear()
-        listData.addAll(newData)
-    }
-
-    fun addListData(newData: ArrayList<String>) {
-        listData.addAll(newData)
-    }
+class MyAdapter : RLRecyclerAdapter<String>() {
 
     override fun onCreateViewHolderNew(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder {
         return BaseRecyclerViewHolder.Companion.createViewHolder(
@@ -30,14 +20,10 @@ class MyAdapter : RLRecyclerAdapter() {
     }
 
     override fun onBindViewHolderNew(holder: BaseRecyclerViewHolder, position: Int) {
-        (holder.contentView as TextView).text = listData[position]
+        (holder.contentView as TextView).text = getListData()[position]
     }
 
     override fun getItemViewTypeNew(position: Int): Int {
         return 0
-    }
-
-    override fun getRealItemCount(): Int {
-        return listData.size
     }
 }
