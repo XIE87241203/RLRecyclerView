@@ -20,7 +20,7 @@ class SimpleRefreshHeader(context: Context) : BaseRefreshHeader(context) {
 
     override fun getMaxHeight(): Int = -1
 
-    override fun getContentView(context: Context?): View {
+    override fun getContentView(context: Context): View {
         val linearLayout = LinearLayout(context)
         linearLayout.gravity = Gravity.BOTTOM
         textView = TextView(context)

@@ -217,7 +217,7 @@ abstract class BaseRefreshHeader : LinearLayout {
      * @return 刷新布局最大下拉高度
      */
     abstract fun getMaxHeight(): Int
-    abstract fun getContentView(context: Context?): View
+    abstract fun getContentView(context: Context): View
 
     fun getState(): RefreshHeaderState {
         return state
