@@ -16,7 +16,7 @@ import com.xie.librlrecyclerview.other.*
  * Created by Anthony on 2020/9/4.
  * Describe:
  */
-class RLRecyclerView : RecyclerView {
+open class RLRecyclerView : RecyclerView {
     var rlAdapter: RLRecyclerAdapter<*>? = null
     var refreshHeader: BaseRefreshHeader //刷新头部
         set(value) {
