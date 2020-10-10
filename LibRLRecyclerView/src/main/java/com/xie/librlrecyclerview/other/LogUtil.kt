@@ -77,23 +77,23 @@ object LogUtil {
     /**
      * ******************** TAG use Object Tag **************************
      */
-    fun v(tag: Any, msg: String?): Int {
+    fun v(tag: Any, msg: String): Int {
         return if (isPrint) Log.v(tag.javaClass.simpleName, msg) else -1
     }
 
-    fun d(tag: Any, msg: String?): Int {
+    fun d(tag: Any, msg: String): Int {
         return if (isPrint) Log.d(tag.javaClass.simpleName, msg) else -1
     }
 
-    fun i(tag: Any, msg: String?): Int {
+    fun i(tag: Any, msg: String): Int {
         return if (isPrint) Log.i(tag.javaClass.simpleName, msg) else -1
     }
 
-    fun w(tag: Any, msg: String?): Int {
+    fun w(tag: Any, msg: String): Int {
         return if (isPrint) Log.w(tag.javaClass.simpleName, msg) else -1
     }
 
-    fun e(tag: Any, msg: String?): Int {
+    fun e(tag: Any, msg: String): Int {
         return if (isPrint) Log.e(tag.javaClass.simpleName, msg) else -1
     }
 }
