@@ -58,7 +58,7 @@ class MyAdapter : RLRecyclerAdapter<String>() {
       override fun onRefresh() {
           //刷新列表
           ...
-          //用替换数据的方式刷新列表
+          //用替换数据的方式刷新列表，listData为整个列表数据的Arraylist
           adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
           //刷新或加载完成，隐藏刷新和加载UI
           rl_rv.setRLState(RLRecyclerState.NORMAL)
@@ -72,7 +72,7 @@ class MyAdapter : RLRecyclerAdapter<String>() {
       override fun onLoadMore() {
           //加载更多
           ...
-          //用插入数据的方式刷新列表
+          //用插入数据的方式刷新列表，listData为整个列表数据的Arraylist
           adapter.updateList(UpdateList(UpdateType.INSERT_DATA, listData))
           //刷新或加载完成，隐藏刷新和加载UI
           rl_rv.setRLState(RLRecyclerState.NORMAL)
