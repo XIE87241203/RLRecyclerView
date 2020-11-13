@@ -26,6 +26,8 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
     val mHeaderViews = SparseArrayCompat<View>()
     val mFootViews = SparseArrayCompat<View>()
 
+    internal var loadMoreKey = -1
+
     private val dataHelper = RLListDataHelper<T>()
 
     abstract fun onCreateViewHolderNew(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder
@@ -65,6 +67,12 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
             return
         }
         onBindViewHolderNew(holder, position - getHeadersCount())
+        //检查加载更多
+        getLoadMoreFooter()?.let {
+            if (it.isLoadMoreFinish() && loadMoreKey != -1 && position >= dataHelper.listData.size - loadMoreKey) {
+                it.startLoadMore()
+            }
+        }
     }
 
     //获取内容Item数量
@@ -135,6 +143,10 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         mFootViews.put(
             SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER, loadMoreFooter
         )
+    }
+
+    internal fun getLoadMoreFooter(): BaseLoadMoreFooter? {
+        return mFootViews.get(SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER) as BaseLoadMoreFooter
     }
 
     /**
@@ -231,4 +243,5 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
     open fun getFootersCount(): Int {
         return mFootViews.size()
     }
+
 }

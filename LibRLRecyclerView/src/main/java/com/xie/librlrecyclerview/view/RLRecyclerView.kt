@@ -37,7 +37,7 @@ open class RLRecyclerView : RecyclerView {
     /**
      * 加载开关
      */
-    var autoLoadMoreEnable = false
+    private var autoLoadMoreEnable = false
 
     /**
      * 剩下多少个开始自动加载
@@ -60,37 +60,15 @@ open class RLRecyclerView : RecyclerView {
         loadMoreFooter = SimpleLoadMoreFooter(context)
     }
 
-    constructor(context: Context) : super(context) {
-        initView(context)
-    }
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        initView(context)
-    }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
     constructor(context: Context, attrs: AttributeSet?, detStyleAttr: Int) : super(
         context,
         attrs,
         detStyleAttr
-    ) {
-        initView(context)
-    }
-
-    private fun initView(context: Context) {
-        //设置滚动监听
-        addOnScrollListener(object : OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                rlAdapter?.let {
-                    if (autoLoadMoreEnable && dy > 0) {
-                        //上滑操作
-                        checkTheBottomLoadMore(it)
-                    }
-                }
-
-            }
-        })
-    }
+    )
 
     /**
      * 根据状态刷新列表头部，尾部显示UI
@@ -118,12 +96,24 @@ open class RLRecyclerView : RecyclerView {
             rlAdapter = adapter
             adapter.setRefreshHeader(refreshHeader)
             adapter.setLoadMoreFooter(loadMoreFooter)
+            initAutoLoadMore()
         }
     }
 
     fun setAutoLoadMoreEnable(enable: Boolean, key: Int) {
         loadMoreKey = key
         autoLoadMoreEnable = enable
+        initAutoLoadMore()
+    }
+
+    private fun initAutoLoadMore() {
+        rlAdapter?.let {
+            it.loadMoreKey = if (autoLoadMoreEnable) {
+                loadMoreKey
+            } else {
+                -1
+            }
+        }
     }
 
     private fun initLoadMoreFooter(footer: BaseLoadMoreFooter) {
@@ -152,46 +142,20 @@ open class RLRecyclerView : RecyclerView {
         loadMoreFooter.showLastPage()
     }
 
-    /**
-     * 检测是否需要自动加载
-     * 当滑动到底部的时候开始自动加载更多
-     */
-    private fun checkTheBottomLoadMore(adapter: RLRecyclerAdapter<*>) {
-        if (layoutManager == null) return
-        val startLoadIndex: Int =
-            adapter.getRealItemCount() - loadMoreKey
-        val num = adapter.getRealItemCount()
-        //判断是否滚动到底部
-        if (isLoadMoreFinish() && adapter.getRealItemCount() > 0) {
-            var visibleIndex = 0
-            if (layoutManager is StaggeredGridLayoutManager) {
-                visibleIndex =
-                    (layoutManager as StaggeredGridLayoutManager?)!!.findLastVisibleItemPositions(
-                        null
-                    )[0] - adapter.getHeadersCount()
-            } else if (layoutManager is LinearLayoutManager) {
-                visibleIndex =
-                    (layoutManager as LinearLayoutManager?)!!.findLastVisibleItemPosition() - adapter.getHeadersCount()
-            }
-            //自动加载
-            if (visibleIndex >= startLoadIndex) startLoadMore()
-        }
-    }
-
     fun isLoadMoreLoading(): Boolean {
-        return loadMoreFooter.getState() == LoadMoreFooterState.LOAD_MORE_LOADING
+        return loadMoreFooter.isLoadMoreLoading()
     }
 
     fun isNoMore(): Boolean {
-        return loadMoreFooter.getState() == LoadMoreFooterState.LOAD_MORE_LAST_PAGE
+        return loadMoreFooter.isNoMore()
     }
 
     fun isLoadMoreError(): Boolean {
-        return loadMoreFooter.getState() == LoadMoreFooterState.LOAD_MORE_ERROR
+        return loadMoreFooter.isLoadMoreError()
     }
 
     fun isLoadMoreFinish(): Boolean {
-        return loadMoreFooter.getState() == LoadMoreFooterState.NORMAL
+        return loadMoreFooter.isLoadMoreFinish()
     }
 
     /*刷新部分*/

@@ -83,4 +83,20 @@ abstract class BaseLoadMoreFooter : RelativeLayout {
     fun getState():LoadMoreFooterState{
         return state
     }
+
+    fun isLoadMoreLoading(): Boolean {
+        return getState() == LoadMoreFooterState.LOAD_MORE_LOADING
+    }
+
+    fun isNoMore(): Boolean {
+        return getState() == LoadMoreFooterState.LOAD_MORE_LAST_PAGE
+    }
+
+    fun isLoadMoreError(): Boolean {
+        return getState() == LoadMoreFooterState.LOAD_MORE_ERROR
+    }
+
+    fun isLoadMoreFinish(): Boolean {
+        return getState() == LoadMoreFooterState.NORMAL
+    }
 }
