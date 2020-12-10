@@ -69,7 +69,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         onBindViewHolderNew(holder, position - getHeadersCount())
         //检查加载更多
         getLoadMoreFooter()?.let {
-            if (it.isLoadMoreFinish() && loadMoreKey != -1 && position >= dataHelper.listData.size - loadMoreKey) {
+            if (it.isLoadMoreFinish() && loadMoreKey != -1&& dataHelper.listData.isNotEmpty() && position >= dataHelper.listData.size - loadMoreKey) {
                 it.startLoadMore()
             }
         }
