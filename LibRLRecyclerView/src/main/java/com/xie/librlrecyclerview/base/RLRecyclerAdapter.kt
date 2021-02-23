@@ -146,7 +146,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
     }
 
     internal fun getLoadMoreFooter(): BaseLoadMoreFooter? {
-        return mFootViews.get(SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER) as BaseLoadMoreFooter
+        return mFootViews.get(SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER) as BaseLoadMoreFooter?
     }
 
     /**
