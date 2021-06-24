@@ -8,6 +8,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.recyclerview.widget.RecyclerView
 import com.xie.librlrecyclerview.other.RefreshHeaderState
 import com.xie.librlrecyclerview.other.LogUtil
 import com.xie.librlrecyclerview.other.OnRefreshListener
@@ -47,7 +48,7 @@ abstract class BaseRefreshHeader : LinearLayout {
     }
 
     private fun initView(context: Context) {
-        layoutParams = ViewGroup.LayoutParams(
+        val myLayoutParams = RecyclerView.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
@@ -56,6 +57,8 @@ abstract class BaseRefreshHeader : LinearLayout {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         lp.gravity = Gravity.BOTTOM
+        myLayoutParams.setMargins(0,-MIN_HEIGHT,0,0)
+        layoutParams = myLayoutParams
         val contentView = getContentView(context)
         addView(contentView, lp)
         setVisibleHeight(MIN_HEIGHT.toDouble())
