@@ -98,7 +98,9 @@ abstract class BaseRefreshHeader : LinearLayout {
             if (it.isStarted) it.cancel()
         }
         var tempHeight: Double = offset + allOffset
-        if (getMaxHeight() != -1 && height > getMaxHeight()) tempHeight = getMaxHeight().toDouble()
+        if (getMaxHeight() != -1 && tempHeight > getMaxHeight()) {
+            tempHeight = getMaxHeight().toDouble()
+        }
         setVisibleHeight(tempHeight)
         if (allOffset >= getRefreshingContentHeight() * REFRESH_HEIGHT_FACTOR) {
             //达到刷新需要高度（完全展示内容）

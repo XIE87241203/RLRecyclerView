@@ -130,7 +130,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      *
      * @param refreshHeader refreshHeader
      */
-    open fun setRefreshHeader(refreshHeader: BaseRefreshHeader) {
+    internal open fun setRefreshHeader(refreshHeader: BaseRefreshHeader) {
         mHeaderViews.put(SPECIAL_ITEM_TYPE_REFRESH_HEADER, refreshHeader)
     }
 
