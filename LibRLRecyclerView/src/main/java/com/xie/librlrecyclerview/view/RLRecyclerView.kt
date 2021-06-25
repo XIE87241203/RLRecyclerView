@@ -263,7 +263,7 @@ open class RLRecyclerView : RecyclerView {
                         refreshHeader.onDragMove(deltaY / BaseRefreshHeader.MOVE_RESISTANCE_FACTOR)
 //                      }
                         //recycleview不能滑动之后拦截滑动事件
-                        isDispose = !canScrollVertically(-1)
+                        isDispose = !super.canScrollVertically(-1)
                     } else {
                         isDispose = false
                     }
@@ -289,15 +289,15 @@ open class RLRecyclerView : RecyclerView {
         return false
     }
 
-    private fun checkOnTop(): Boolean {
+    fun checkOnTop(): Boolean {
         var index = -1
         var isFirstViewOnTop = false
         if (layoutManager is StaggeredGridLayoutManager) {
             index =
                 (layoutManager as StaggeredGridLayoutManager?)!!.findFirstVisibleItemPositions(null)[0]
         } else if (layoutManager is LinearLayoutManager) {
-            val linearLayoutManager = layoutManager as LinearLayoutManager?
-            index = linearLayoutManager!!.findFirstVisibleItemPosition()
+            val linearLayoutManager = layoutManager as LinearLayoutManager? ?: return true
+            index = linearLayoutManager.findFirstVisibleItemPosition()
             if (index == 1) {
                 val topView = linearLayoutManager.findViewByPosition(1)
                 if (topView != null) {
@@ -306,7 +306,15 @@ open class RLRecyclerView : RecyclerView {
             }
         }
         //分别是第一个看到的item为0；是否能向下滑动（有view隐藏时有bug，比如刷新头部）；除刷新头部外第一个看到的view的top是否为0
-        return index == 0 || !canScrollVertically(-1) || isFirstViewOnTop
+        return index == 0 || !super.canScrollVertically(-1) || isFirstViewOnTop
+    }
+
+    override fun canScrollVertically(direction: Int): Boolean {
+        return if (direction < 0) {
+            !checkOnTop()
+        } else {
+            super.canScrollVertically(direction)
+        }
     }
 
     /**
