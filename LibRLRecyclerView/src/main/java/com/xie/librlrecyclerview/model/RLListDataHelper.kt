@@ -8,7 +8,7 @@ import com.xie.librlrecyclerview.other.UpdateType
  * Describe:
  */
 class RLListDataHelper<T> {
-    val listData: ArrayList<T> = ArrayList()
+    val listData: MutableList<T> = ArrayList()
 
     fun setUpdateList(listAdapter: RLRecyclerAdapter<T>, updateList: UpdateList<T>) {
         when (updateList.updateType) {
@@ -55,7 +55,7 @@ class RLListDataHelper<T> {
     /**
      * 检查是否满足插入数据,不满足返回-1，满足的话返回旧数据最后一个数据在新数据的序号
      */
-    private fun checkData(updateData: ArrayList<T>): Int {
+    private fun checkData(updateData: MutableList<T>): Int {
         if (updateData.size < listData.size) {
             //新列表比旧列表短
             return -1
