@@ -33,6 +33,10 @@ open class RLRecyclerView : RecyclerView {
      * 刷新开关
      */
     var refreshEnable = false
+    set(value) {
+        field = value
+        initRefresh()
+    }
 
     /**
      * 加载开关
@@ -94,9 +98,8 @@ open class RLRecyclerView : RecyclerView {
         super.setAdapter(adapter)
         if (adapter is RLRecyclerAdapter<*>) {
             rlAdapter = adapter
-            adapter.setRefreshHeader(refreshHeader)
-            adapter.setLoadMoreFooter(loadMoreFooter)
             initAutoLoadMore()
+            initRefresh()
         }
     }
 
@@ -108,13 +111,26 @@ open class RLRecyclerView : RecyclerView {
 
     private fun initAutoLoadMore() {
         rlAdapter?.let {
-            it.loadMoreKey = if (autoLoadMoreEnable) {
-                loadMoreKey
-            } else {
-                -1
+            if (autoLoadMoreEnable) {
+                it.loadMoreKey = loadMoreKey
+                it.setLoadMoreFooter(loadMoreFooter)
+            }else{
+                it.loadMoreKey = -1
+                it.setLoadMoreFooter(null)
             }
         }
     }
+
+    private fun initRefresh(){
+        rlAdapter?.let {
+            if (refreshEnable) {
+                it.setRefreshHeader(refreshHeader)
+            }else{
+                it.setRefreshHeader(null)
+            }
+        }
+    }
+
 
     private fun initLoadMoreFooter(footer: BaseLoadMoreFooter) {
         //添加刷新监听

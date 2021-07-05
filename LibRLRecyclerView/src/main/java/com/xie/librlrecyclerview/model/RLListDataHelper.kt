@@ -11,19 +11,22 @@ class RLListDataHelper<T> {
     val listData: ArrayList<T> = ArrayList()
 
     fun setUpdateList(listAdapter: RLRecyclerAdapter<T>, updateList: UpdateList<T>) {
-        if (listData.isEmpty()) {
-            //从0插入
-            listData.addAll(updateList.listData);
-            listAdapter.notifyItemRangeInserted(listAdapter.getHeadersCount(), listData.size)
-        } else {
-            when (updateList.updateType) {
-                UpdateType.REFRESH_LIST -> {
-                    //刷新整个列表
-                    listData.clear()
+        when (updateList.updateType) {
+            UpdateType.REFRESH_LIST -> {
+                //刷新整个列表
+                listData.clear()
+                listData.addAll(updateList.listData)
+                listAdapter.notifyDataSetChanged()
+            }
+            UpdateType.INSERT_DATA -> {
+                if (listData.isEmpty()) {
+                    //从0插入
                     listData.addAll(updateList.listData)
-                    listAdapter.notifyDataSetChanged()
-                }
-                UpdateType.INSERT_DATA -> {
+                    listAdapter.notifyItemRangeInserted(
+                        listAdapter.getHeadersCount(),
+                        listData.size
+                    )
+                } else {
                     val startIndex = checkData(updateList.listData)
                     //排除列表完全相等的情况
                     if (startIndex == updateList.listData.size - 1) return

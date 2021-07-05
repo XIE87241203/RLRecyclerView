@@ -69,7 +69,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         onBindViewHolderNew(holder, position - getHeadersCount())
         //检查加载更多
         getLoadMoreFooter()?.let {
-            if (it.isLoadMoreFinish() && loadMoreKey != -1&& dataHelper.listData.isNotEmpty() && position >= dataHelper.listData.size - loadMoreKey) {
+            if (it.isLoadMoreFinish() && loadMoreKey != -1 && dataHelper.listData.isNotEmpty() && position >= dataHelper.listData.size - loadMoreKey) {
                 it.startLoadMore()
             }
         }
@@ -130,8 +130,12 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      *
      * @param refreshHeader refreshHeader
      */
-    internal open fun setRefreshHeader(refreshHeader: BaseRefreshHeader) {
-        mHeaderViews.put(SPECIAL_ITEM_TYPE_REFRESH_HEADER, refreshHeader)
+    internal open fun setRefreshHeader(refreshHeader: BaseRefreshHeader?) {
+        if (refreshHeader == null) {
+            mHeaderViews.remove(SPECIAL_ITEM_TYPE_REFRESH_HEADER)
+        } else {
+            mHeaderViews.put(SPECIAL_ITEM_TYPE_REFRESH_HEADER, refreshHeader)
+        }
     }
 
     /**
@@ -139,10 +143,14 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      *
      * @param loadMoreFooter loadMoreFooter
      */
-    internal open fun setLoadMoreFooter(loadMoreFooter: BaseLoadMoreFooter) {
-        mFootViews.put(
-            SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER, loadMoreFooter
-        )
+    internal open fun setLoadMoreFooter(loadMoreFooter: BaseLoadMoreFooter?) {
+        if (loadMoreFooter == null) {
+            mFootViews.remove(SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER)
+        } else {
+            mFootViews.put(
+                SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER, loadMoreFooter
+            )
+        }
     }
 
     internal fun getLoadMoreFooter(): BaseLoadMoreFooter? {
