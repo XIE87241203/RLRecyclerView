@@ -33,10 +33,10 @@ open class RLRecyclerView : RecyclerView {
      * 刷新开关
      */
     var refreshEnable = false
-    set(value) {
-        field = value
-        initRefresh()
-    }
+        set(value) {
+            field = value
+            initRefresh()
+        }
 
     /**
      * 加载开关
@@ -114,18 +114,18 @@ open class RLRecyclerView : RecyclerView {
             if (autoLoadMoreEnable) {
                 it.loadMoreKey = loadMoreKey
                 it.setLoadMoreFooter(loadMoreFooter)
-            }else{
+            } else {
                 it.loadMoreKey = -1
                 it.setLoadMoreFooter(null)
             }
         }
     }
 
-    private fun initRefresh(){
+    private fun initRefresh() {
         rlAdapter?.let {
             if (refreshEnable) {
                 it.setRefreshHeader(refreshHeader)
-            }else{
+            } else {
                 it.setRefreshHeader(null)
             }
         }
@@ -306,23 +306,39 @@ open class RLRecyclerView : RecyclerView {
     }
 
     fun checkOnTop(): Boolean {
-        var index = -1
-        var isFirstViewOnTop = false
-        if (layoutManager is StaggeredGridLayoutManager) {
-            index =
-                (layoutManager as StaggeredGridLayoutManager?)!!.findFirstVisibleItemPositions(null)[0]
-        } else if (layoutManager is LinearLayoutManager) {
-            val linearLayoutManager = layoutManager as LinearLayoutManager? ?: return true
-            index = linearLayoutManager.findFirstVisibleItemPosition()
-            if (index == 1) {
-                val topView = linearLayoutManager.findViewByPosition(1)
-                if (topView != null) {
-                    isFirstViewOnTop = getViewTopWithOutMarginPadding(topView)
+        if (refreshEnable) {
+            //可以刷新
+            if (isDispose) {
+                //正在下拉头部
+                return false
+            } else {
+                var index: Int
+                var isFirstViewOnTop = false
+                layoutManager?.let {
+                    if (it is StaggeredGridLayoutManager) {
+                        index = it.findFirstVisibleItemPositions(null)[0]
+                        if (index == 1) {
+                            val topView = it.findViewByPosition(1)
+                            if (topView != null) {
+                                isFirstViewOnTop = getViewTopWithOutMarginPadding(topView)
+                            }
+                        }
+                    } else if (it is LinearLayoutManager) {
+                        index = it.findFirstVisibleItemPosition()
+                        if (index == 1) {
+                            val topView = it.findViewByPosition(1)
+                            if (topView != null) {
+                                isFirstViewOnTop = getViewTopWithOutMarginPadding(topView)
+                            }
+                        }
+                    }
+                    return isFirstViewOnTop
                 }
+                return true
             }
+        } else {
+            return !super.canScrollVertically(-1)
         }
-        //分别是第一个看到的item为0；是否能向下滑动（有view隐藏时有bug，比如刷新头部）；除刷新头部外第一个看到的view的top是否为0
-        return index == 0 || !super.canScrollVertically(-1) || isFirstViewOnTop
     }
 
     override fun canScrollVertically(direction: Int): Boolean {
