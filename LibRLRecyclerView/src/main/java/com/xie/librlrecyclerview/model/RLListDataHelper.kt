@@ -8,6 +8,16 @@ import com.xie.librlrecyclerview.other.UpdateType
  * Describe:
  */
 class RLListDataHelper<T> {
+
+    interface DataUpdatedListener<T>{
+        /**
+         * 在内容Update成功后回调
+         */
+       fun onDataUpdated(changedData: UpdateList<T>)
+    }
+
+    var dataUpdatedListener:DataUpdatedListener<T>? = null
+
     val listData: MutableList<T> = ArrayList()
 
     fun setUpdateList(listAdapter: RLRecyclerAdapter<T>, updateList: UpdateList<T>) {
@@ -50,6 +60,7 @@ class RLListDataHelper<T> {
                 }
             }
         }
+        dataUpdatedListener?.onDataUpdated(updateList)
     }
 
     /**

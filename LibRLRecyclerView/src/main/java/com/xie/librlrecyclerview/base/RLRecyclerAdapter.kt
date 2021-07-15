@@ -252,4 +252,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         return mFootViews.size()
     }
 
+    fun setDataChangedListener(listener: RLListDataHelper.DataUpdatedListener<T>?){
+        dataHelper.dataUpdatedListener = listener
+    }
 }
