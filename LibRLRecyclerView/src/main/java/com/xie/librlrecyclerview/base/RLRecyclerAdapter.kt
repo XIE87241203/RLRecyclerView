@@ -76,15 +76,15 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
     }
 
     //获取内容Item数量
-    fun getRealItemCount(): Int {
+    open fun getRealItemCount(): Int {
         return dataHelper.listData.size
     }
 
-    fun updateList(updateList: UpdateList<T>) {
+    open fun updateList(updateList: UpdateList<T>) {
         dataHelper.setUpdateList(this, updateList)
     }
 
-    override fun getItemCount(): Int {
+    open override fun getItemCount(): Int {
         return getHeadersCount() + getFootersCount() + getRealItemCount()
     }
 
@@ -121,7 +121,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         }
     }
 
-    fun getListData(): MutableList<T> {
+    open fun getListData(): MutableList<T> {
         return dataHelper.listData
     }
 
@@ -153,7 +153,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         }
     }
 
-    internal fun getLoadMoreFooter(): BaseLoadMoreFooter? {
+    internal open fun getLoadMoreFooter(): BaseLoadMoreFooter? {
         return mFootViews.get(SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER) as BaseLoadMoreFooter?
     }
 
