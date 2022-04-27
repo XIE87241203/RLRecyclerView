@@ -90,7 +90,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
 
     override fun onViewAttachedToWindow(holder: BaseRecyclerViewHolder) {
         //处理StaggeredGridLayout类型
-        var position = holder.adapterPosition
+        var position = holder.bindingAdapterPosition
         if (position == RecyclerView.NO_POSITION) {
             position = holder.layoutPosition
         }
@@ -163,6 +163,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      * @param view view
      */
     open fun addHeaderView(view: View?) {
+        removeHeaderView(view)
         mHeaderViews.put(
             mHeaderViews.size() + BASE_ITEM_TYPE_HEADER,
             view
@@ -191,6 +192,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      * @param view view
      */
     open fun addFooterView(view: View?) {
+        removeFooterView(view)
         mFootViews.put(
             mFootViews.size() + BASE_ITEM_TYPE_FOOTER,
             view
@@ -255,4 +257,5 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
     fun setDataChangedListener(listener: RLListDataHelper.DataUpdatedListener<T>?){
         dataHelper.dataUpdatedListener = listener
     }
+
 }
