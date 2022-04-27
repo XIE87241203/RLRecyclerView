@@ -90,7 +90,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
 
     override fun onViewAttachedToWindow(holder: BaseRecyclerViewHolder) {
         //处理StaggeredGridLayout类型
-        var position = holder.bindingAdapterPosition
+        var position = holder.adapterPosition
         if (position == RecyclerView.NO_POSITION) {
             position = holder.layoutPosition
         }
