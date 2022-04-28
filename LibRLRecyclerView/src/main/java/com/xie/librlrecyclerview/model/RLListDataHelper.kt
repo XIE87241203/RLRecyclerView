@@ -54,6 +54,8 @@ class RLListDataHelper<T> {
                             listData.size - insertStart
                         )
                     } else {
+                        listData.clear()
+                        listData.addAll(updateList.listData)
                         //数据异常，刷新整个列表
                         listAdapter.notifyDataSetChanged()
                     }
