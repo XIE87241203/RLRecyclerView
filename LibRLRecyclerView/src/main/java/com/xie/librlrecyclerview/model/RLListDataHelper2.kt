@@ -51,10 +51,21 @@ class RLListDataHelper2<T>(val listAdapter: RLRecyclerAdapter<T>) {
     }
 
     fun setUpdateList(updateList: UpdateList<T>) {
-        val result = DiffUtil.calculateDiff(DiffItemCallBack(listData, updateList.listData))
-        listData.clear()
-        listData.addAll(updateList.listData)
-        result.dispatchUpdatesTo(adapterCallBack)
+        when (updateList.updateType) {
+            UpdateType.REFRESH_LIST -> {
+                //刷新整个列表
+                listData.clear()
+                listData.addAll(updateList.listData)
+                listAdapter.notifyDataSetChanged()
+            }
+            UpdateType.INSERT_DATA, UpdateType.CHANGE_LIST -> {
+                val result = DiffUtil.calculateDiff(DiffItemCallBack(listData, updateList.listData))
+                listData.clear()
+                listData.addAll(updateList.listData)
+                result.dispatchUpdatesTo(adapterCallBack)
+            }
+        }
+
         dataUpdatedListener?.onDataUpdated(updateList)
     }
 }

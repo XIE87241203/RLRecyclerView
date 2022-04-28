@@ -10,7 +10,7 @@ data class UpdateList<T>(
     /**
      * 更新类型
      */
-    val updateType: UpdateType = UpdateType.REFRESH_LIST,
+    val updateType: UpdateType,
     /**
      * 列表的所有数据,用于替换掉adapter内数据
      */

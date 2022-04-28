@@ -19,7 +19,7 @@ import com.xie.librlrecyclerview.other.OnRefreshListener
  */
 abstract class BaseRefreshHeader : LinearLayout {
     companion object {
-        const val MIN_HEIGHT = 1//最小高度
+        const val MIN_HEIGHT = 0//最小高度
         const val REFRESH_HEIGHT_FACTOR: Double = 0.9//下拉高度超过90%就判定为需要刷新
         const val MOVE_RESISTANCE_FACTOR: Double = 2.5 //头部滑动的阻力系数
     }

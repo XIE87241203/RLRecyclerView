@@ -6,12 +6,18 @@ package com.xie.librlrecyclerview.other
  */
 enum class UpdateType {
     /**
-     * 刷新整个列表数据
+     * 初始化整个列表数据
      */
     REFRESH_LIST,
 
     /**
-     * 从底部插入列表数据
+     * 列表被插入数据
      */
-    INSERT_DATA
+    @Deprecated("已废弃，请使用CHANGE_LIST")
+    INSERT_DATA,
+
+    /**
+     * 列表数据内被改变
+     */
+    CHANGE_LIST
 }

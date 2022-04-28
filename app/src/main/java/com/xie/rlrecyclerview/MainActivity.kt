@@ -3,13 +3,11 @@ package com.xie.rlrecyclerview
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.xie.librlrecyclerview.model.UpdateList
-import com.xie.librlrecyclerview.other.OnLoadMoreListener
-import com.xie.librlrecyclerview.other.OnRefreshListener
-import com.xie.librlrecyclerview.other.RLRecyclerState
-import com.xie.librlrecyclerview.other.UpdateType
+import com.xie.librlrecyclerview.other.*
 import com.xie.rlrecyclerview.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -43,22 +41,30 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.rlRv.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
+//        binding.rlRv.layoutManager = LinearLayoutManager(this)
         adapter = MyAdapter()
         adapter.onItemClickListener = object : MyAdapter.OnItemClickListener {
 
             override fun onLongClick(info: String) {
                 listData.remove(info)
-                adapter.updateList(UpdateList(listData = listData))
+                adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
             }
 
             override fun onClick(info: String) {
                 val index = listData.indexOf(info)
                 if (index != -1) {
                     listData[index] = "已点击" + listData[index]
-                    adapter.updateList(UpdateList(listData = listData))
+                    adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
                 }
             }
         }
+        binding.rlRv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                LogUtil.i("canScrollVertically top ->" + binding.rlRv.canScrollVertically(-1))
+            }
+        })
+
         binding.rlRv.adapter = adapter
         //打开下拉刷新开关
         binding.rlRv.refreshEnable = true

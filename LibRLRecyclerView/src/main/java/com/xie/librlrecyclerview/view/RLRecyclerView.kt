@@ -317,16 +317,18 @@ open class RLRecyclerView : RecyclerView {
                 layoutManager?.let {
                     if (it is StaggeredGridLayoutManager) {
                         index = it.findFirstVisibleItemPositions(null)[0]
-                        if (index == 0) {
-                            val topView = it.findViewByPosition(0)
+                        LogUtil.i("checkOnTop() index->$index")
+                        if (index == 1) {
+                            val topView = it.findViewByPosition(1)
                             if (topView != null) {
                                 isFirstViewOnTop = getViewTopWithOutMarginPadding(topView)
                             }
                         }
                     } else if (it is LinearLayoutManager) {
                         index = it.findFirstVisibleItemPosition()
-                        if (index == 0) {
-                            val topView = it.findViewByPosition(0)
+                        LogUtil.i("checkOnTop() index->$index")
+                        if (index == 1) {
+                            val topView = it.findViewByPosition(1)
                             if (topView != null) {
                                 isFirstViewOnTop = getViewTopWithOutMarginPadding(topView)
                             }
@@ -360,6 +362,7 @@ open class RLRecyclerView : RecyclerView {
         if (view.layoutParams != null) {
             marginTop = (view.layoutParams as LayoutParams).topMargin
         }
+        LogUtil.i("getViewTopWithOutMarginPadding->${view.top - marginTop}")
         return view.top - marginTop == 0
     }
 }
