@@ -44,6 +44,21 @@ class MainActivity : AppCompatActivity() {
 
         binding.rlRv.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
         adapter = MyAdapter()
+        adapter.onItemClickListener = object : MyAdapter.OnItemClickListener {
+
+            override fun onLongClick(info: String) {
+                listData.remove(info)
+                adapter.updateList(UpdateList(listData = listData))
+            }
+
+            override fun onClick(info: String) {
+                val index = listData.indexOf(info)
+                if (index != -1) {
+                    listData[index] = "已点击" + listData[index]
+                    adapter.updateList(UpdateList(listData = listData))
+                }
+            }
+        }
         binding.rlRv.adapter = adapter
         //打开下拉刷新开关
         binding.rlRv.refreshEnable = true
@@ -65,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         }
         //打开自动加载开关
         //第二个参数为剩下多少个item未展示时触发下一页的加载
-        binding.rlRv.setAutoLoadMoreEnable(true,2)
+        binding.rlRv.setAutoLoadMoreEnable(true, 2)
         binding.rlRv.onLoadMoreListener = object : OnLoadMoreListener {
             override fun onLoadMore() {
                 //加载更多
