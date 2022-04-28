@@ -6,6 +6,7 @@ import androidx.collection.SparseArrayCompat
 import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import com.xie.librlrecyclerview.model.*
+import com.xie.librlrecyclerview.other.DiffHeaderFootCallBack
 
 /**
  * Created by Anthony on 2020/9/4.
@@ -215,12 +216,6 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         }
     }
 
-    open fun removeAllHeaderView() {
-        val newHeaderViews = getNewHeaderViewList()
-        newHeaderViews.clear()
-        updateHeader(newHeaderViews)
-    }
-
     /**
      * 添加Footer
      *
@@ -251,13 +246,6 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
             newFooterViews.removeAt(index)
             updateFooter(newFooterViews)
         }
-    }
-
-
-    open fun removeAllFooterView() {
-        val newFooterViews = getNewFooterViewList()
-        newFooterViews.clear()
-        updateFooter(newFooterViews)
     }
 
 

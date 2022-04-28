@@ -3,6 +3,7 @@ package com.xie.librlrecyclerview.model
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.xie.librlrecyclerview.base.RLRecyclerAdapter
+import com.xie.librlrecyclerview.other.DiffItemCallBack
 import com.xie.librlrecyclerview.other.UpdateType
 
 /**

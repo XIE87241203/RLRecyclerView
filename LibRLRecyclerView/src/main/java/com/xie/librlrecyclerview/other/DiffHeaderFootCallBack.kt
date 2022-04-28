@@ -1,4 +1,4 @@
-package com.xie.librlrecyclerview.model
+package com.xie.librlrecyclerview.other
 
 import android.annotation.SuppressLint
 import android.view.View
@@ -21,10 +21,10 @@ class DiffHeaderFootCallBack(private val oldList: SparseArrayCompat<View>, priva
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition] == newList[newItemPosition]
+        return oldList.valueAt(oldItemPosition) == newList.valueAt(newItemPosition)
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition] == newList[newItemPosition]
+        return oldList.valueAt(oldItemPosition) == newList.valueAt(newItemPosition)
     }
 }

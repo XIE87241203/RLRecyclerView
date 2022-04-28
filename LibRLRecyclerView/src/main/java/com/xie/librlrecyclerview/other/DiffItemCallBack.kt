@@ -1,6 +1,5 @@
-package com.xie.librlrecyclerview.model
+package com.xie.librlrecyclerview.other
 
-import android.annotation.SuppressLint
 import androidx.recyclerview.widget.DiffUtil
 
 /**
