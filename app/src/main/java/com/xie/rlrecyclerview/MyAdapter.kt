@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.xie.librlrecyclerview.base.BaseRecyclerViewHolder
 import com.xie.librlrecyclerview.base.RLRecyclerAdapter
+import com.xie.librlrecyclerview.model.UpdateList
 
 /**
  * Created by Anthony on 2020/9/4.
@@ -23,6 +24,17 @@ class MyAdapter : RLRecyclerAdapter<String>() {
     override fun onBindViewHolderNew(holder: BaseRecyclerViewHolder, position: Int) {
         //通过getListData()获取列表数据，在这个例子里getListData()返回ArrayList<String>
         (holder.contentView as TextView).text = getListData()[position]
+        holder.contentView.setOnClickListener {
+            val newList = ArrayList(getListData())
+            newList[position] = "已点击" + newList[position]
+            updateList(UpdateList(listData = newList))
+        }
+        holder.contentView.setOnLongClickListener {
+            val newList = ArrayList(getListData())
+            newList.removeAt(position)
+            updateList(UpdateList(listData = newList))
+            true
+        }
     }
 
     override fun getItemViewTypeNew(position: Int): Int {

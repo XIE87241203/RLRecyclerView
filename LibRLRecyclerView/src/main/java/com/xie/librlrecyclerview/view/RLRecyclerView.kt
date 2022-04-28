@@ -273,6 +273,7 @@ open class RLRecyclerView : RecyclerView {
                 startY = e.rawY
                 startX = e.rawX
                 if (isTouch) {
+                    LogUtil.i("deltaY ->" + deltaY + "  checkOnTop->" + checkOnTop() + " refreshHeader.getVisibleHeight()->" + refreshHeader.getVisibleHeight())
                     if ((deltaY > 0 && checkOnTop()) || refreshHeader.getVisibleHeight() > BaseRefreshHeader.MIN_HEIGHT) {
                         //防止异常回弹(需要根据屏幕密度判断)
 //                      if(Math.abs(deltaY)<100){
@@ -310,6 +311,7 @@ open class RLRecyclerView : RecyclerView {
             //可以刷新
             if (isDispose) {
                 //正在下拉头部
+                LogUtil.i("checkOnTop() isDispose")
                 return false
             } else {
                 var index: Int
@@ -317,21 +319,24 @@ open class RLRecyclerView : RecyclerView {
                 layoutManager?.let {
                     if (it is StaggeredGridLayoutManager) {
                         index = it.findFirstVisibleItemPositions(null)[0]
-                        if (index == 1) {
-                            val topView = it.findViewByPosition(1)
+                        LogUtil.i("checkOnTop() index->" + index)
+                        if (index == 0) {
+                            val topView = it.findViewByPosition(0)
                             if (topView != null) {
                                 isFirstViewOnTop = getViewTopWithOutMarginPadding(topView)
                             }
                         }
                     } else if (it is LinearLayoutManager) {
                         index = it.findFirstVisibleItemPosition()
-                        if (index == 1) {
-                            val topView = it.findViewByPosition(1)
+                        LogUtil.i("checkOnTop() index->" + index)
+                        if (index == 0) {
+                            val topView = it.findViewByPosition(0)
                             if (topView != null) {
                                 isFirstViewOnTop = getViewTopWithOutMarginPadding(topView)
                             }
                         }
                     }
+                    LogUtil.i("checkOnTop() isFirstViewOnTop->" + isFirstViewOnTop)
                     return isFirstViewOnTop
                 }
                 return true
@@ -360,6 +365,7 @@ open class RLRecyclerView : RecyclerView {
         if (view.layoutParams != null) {
             marginTop = (view.layoutParams as LayoutParams).topMargin
         }
+        LogUtil.i("getViewTopWithOutMarginPadding->" + (view.top - marginTop))
         return view.top - marginTop == 0
     }
 }
