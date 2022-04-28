@@ -3,12 +3,9 @@ package com.xie.librlrecyclerview.base
 import android.view.View
 import android.view.ViewGroup
 import androidx.collection.SparseArrayCompat
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.xie.librlrecyclerview.model.RLListDataHelper
-import com.xie.librlrecyclerview.model.UpdateList
+import com.xie.librlrecyclerview.model.*
 
 /**
  * Created by Anthony on 2020/9/4.
@@ -28,7 +25,32 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
 
     internal var loadMoreKey = -1
 
-    private val dataHelper = RLListDataHelper<T>()
+    private val dataHelper: RLListDataHelper2<T> by lazy { RLListDataHelper2(this) }
+
+    val adapterFootCallBack = object : ListUpdateCallback {
+        override fun onInserted(position: Int, count: Int) {
+            notifyItemRangeInserted(position + getHeadersCount() + getRealItemCount(), count)
+        }
+
+        override fun onRemoved(position: Int, count: Int) {
+            notifyItemRangeRemoved(position + getHeadersCount() + getRealItemCount(), count)
+        }
+
+        override fun onMoved(fromPosition: Int, toPosition: Int) {
+            notifyItemMoved(
+                fromPosition + getHeadersCount() + getRealItemCount(),
+                toPosition + getHeadersCount() + getRealItemCount()
+            )
+        }
+
+        override fun onChanged(position: Int, count: Int, payload: Any?) {
+            notifyItemRangeChanged(
+                position + getHeadersCount() + getRealItemCount(),
+                count,
+                payload
+            )
+        }
+    }
 
     abstract fun onCreateViewHolderNew(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder
     abstract fun onBindViewHolderNew(holder: BaseRecyclerViewHolder, position: Int)
@@ -81,7 +103,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
     }
 
     open fun updateList(updateList: UpdateList<T>) {
-        dataHelper.setUpdateList(this, updateList)
+        dataHelper.setUpdateList(updateList)
     }
 
     open override fun getItemCount(): Int {
@@ -131,11 +153,13 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      * @param refreshHeader refreshHeader
      */
     internal open fun setRefreshHeader(refreshHeader: BaseRefreshHeader?) {
+        val newHeaderViews = getNewHeaderViewList()
         if (refreshHeader == null) {
-            mHeaderViews.remove(SPECIAL_ITEM_TYPE_REFRESH_HEADER)
+            newHeaderViews.remove(SPECIAL_ITEM_TYPE_REFRESH_HEADER)
         } else {
-            mHeaderViews.put(SPECIAL_ITEM_TYPE_REFRESH_HEADER, refreshHeader)
+            newHeaderViews.put(SPECIAL_ITEM_TYPE_REFRESH_HEADER, refreshHeader)
         }
+        updateHeader(newHeaderViews)
     }
 
     /**
@@ -144,13 +168,15 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      * @param loadMoreFooter loadMoreFooter
      */
     internal open fun setLoadMoreFooter(loadMoreFooter: BaseLoadMoreFooter?) {
+        val newFooterViews = getNewFooterViewList()
         if (loadMoreFooter == null) {
-            mFootViews.remove(SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER)
+            newFooterViews.remove(SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER)
         } else {
-            mFootViews.put(
+            newFooterViews.put(
                 SPECIAL_ITEM_TYPE_LOAD_FOOTER + BASE_ITEM_TYPE_FOOTER, loadMoreFooter
             )
         }
+        updateFooter(newFooterViews)
     }
 
     internal open fun getLoadMoreFooter(): BaseLoadMoreFooter? {
@@ -162,12 +188,17 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      *
      * @param view view
      */
-    open fun addHeaderView(view: View?) {
-        removeHeaderView(view)
-        mHeaderViews.put(
-            mHeaderViews.size() + BASE_ITEM_TYPE_HEADER,
+    open fun addHeaderView(view: View) {
+        val newHeaderViews = getNewHeaderViewList()
+        val index = newHeaderViews.indexOfValue(view)
+        if (index != -1) {
+            newHeaderViews.removeAt(index)
+        }
+        newHeaderViews.put(
+            newHeaderViews.size() + BASE_ITEM_TYPE_HEADER,
             view
         )
+        updateHeader(newHeaderViews)
     }
 
     /**
@@ -175,15 +206,19 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      *
      * @param view view
      */
-    open fun removeHeaderView(view: View?) {
-        val index = mHeaderViews.indexOfValue(view)
+    open fun removeHeaderView(view: View) {
+        val newHeaderViews = getNewHeaderViewList()
+        val index = newHeaderViews.indexOfValue(view)
         if (index != -1) {
-            mHeaderViews.removeAt(index)
+            newHeaderViews.removeAt(index)
+            updateHeader(newHeaderViews)
         }
     }
 
     open fun removeAllHeaderView() {
-        mHeaderViews.clear()
+        val newHeaderViews = getNewHeaderViewList()
+        newHeaderViews.clear()
+        updateHeader(newHeaderViews)
     }
 
     /**
@@ -192,11 +227,16 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      * @param view view
      */
     open fun addFooterView(view: View?) {
-        removeFooterView(view)
-        mFootViews.put(
-            mFootViews.size() + BASE_ITEM_TYPE_FOOTER,
+        val newFooterViews = getNewFooterViewList()
+        val index = newFooterViews.indexOfValue(view)
+        if (index != -1) {
+            newFooterViews.removeAt(index)
+        }
+        newFooterViews.put(
+            newFooterViews.size() + BASE_ITEM_TYPE_FOOTER,
             view
         )
+        updateFooter(newFooterViews)
     }
 
     /**
@@ -204,15 +244,20 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
      *
      * @param view view
      */
-    open fun removeFooterView(view: View?) {
-        val index = mFootViews.indexOfValue(view)
+    open fun removeFooterView(view: View) {
+        val newFooterViews = getNewFooterViewList()
+        val index = newFooterViews.indexOfValue(view)
         if (index != -1) {
-            mFootViews.removeAt(index)
+            newFooterViews.removeAt(index)
+            updateFooter(newFooterViews)
         }
     }
 
+
     open fun removeAllFooterView() {
-        mFootViews.clear()
+        val newFooterViews = getNewFooterViewList()
+        newFooterViews.clear()
+        updateFooter(newFooterViews)
     }
 
 
@@ -254,8 +299,39 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         return mFootViews.size()
     }
 
-    fun setDataChangedListener(listener: RLListDataHelper.DataUpdatedListener<T>?){
+    fun setDataChangedListener(listener: RLListDataHelper2.DataUpdatedListener<T>?) {
         dataHelper.dataUpdatedListener = listener
     }
 
+    private fun updateHeader(newHeadArray: SparseArrayCompat<View>) {
+        val result = DiffUtil.calculateDiff(DiffHeaderFootCallBack(mHeaderViews, newHeadArray))
+        mHeaderViews.clear()
+        mHeaderViews.putAll(newHeadArray)
+        result.dispatchUpdatesTo(this)
+    }
+
+    private fun updateFooter(newFootArray: SparseArrayCompat<View>) {
+        val result = DiffUtil.calculateDiff(DiffHeaderFootCallBack(mFootViews, newFootArray))
+        mFootViews.clear()
+        mFootViews.putAll(newFootArray)
+        result.dispatchUpdatesTo(adapterFootCallBack)
+    }
+
+    /**
+     * 获取一个新的包含脚部数据的列表
+     */
+    fun getNewFooterViewList(): SparseArrayCompat<View> {
+        val newFooterViews = SparseArrayCompat<View>()
+        newFooterViews.putAll(mFootViews)
+        return newFooterViews
+    }
+
+    /**
+     * 获取一个新的包含头部数据的列表
+     */
+    fun getNewHeaderViewList(): SparseArrayCompat<View> {
+        val newHeaderViews = SparseArrayCompat<View>()
+        newHeaderViews.putAll(mHeaderViews)
+        return newHeaderViews
+    }
 }
