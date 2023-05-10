@@ -57,6 +57,7 @@ class MyAdapter : RLRecyclerAdapter<String>() {
  rl_rv.onRefreshListener = object : OnRefreshListener {
       override fun onRefresh() {
           //刷新列表
+          
           ...
           //用替换数据的方式刷新列表，listData为整个列表数据的Arraylist
           adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
