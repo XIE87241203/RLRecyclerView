@@ -83,13 +83,20 @@ open class RLRecyclerView : RecyclerView {
                 refreshHeader.finishRefresh()
                 loadMoreFooter.finishLoadMore()
             }
+
             RLRecyclerState.LOAD_MORE_ERROR -> {
                 refreshHeader.finishRefresh()
                 loadMoreFooter.showLoadMoreError()
             }
+
             RLRecyclerState.LOAD_MORE_LAST_PAGE -> {
                 refreshHeader.finishRefresh()
                 loadMoreFooter.showLastPage()
+            }
+
+            RLRecyclerState.LOAD_MORE_LOADING -> {
+                refreshHeader.finishRefresh()
+                loadMoreFooter.showLoadMoreLoading()
             }
         }
     }
@@ -140,6 +147,10 @@ open class RLRecyclerView : RecyclerView {
             }
         }
         rlAdapter?.setLoadMoreFooter(footer)
+    }
+
+    fun showLoadMoreLoading() {
+        loadMoreFooter.showLoadMoreLoading()
     }
 
     fun startLoadMore() {
@@ -263,6 +274,7 @@ open class RLRecyclerView : RecyclerView {
                 isTouch = true
                 isDispose = false
             }
+
             MotionEvent.ACTION_MOVE -> {
                 LogUtil.i("disposeRefresh: ACTION_MOVE")
                 val deltaY = e.rawY - startY
@@ -286,6 +298,7 @@ open class RLRecyclerView : RecyclerView {
                 }
                 return isDispose
             }
+
             MotionEvent.ACTION_UP -> {
                 LogUtil.i("disposeRefresh: ACTION_UP")
                 refreshHeader.onRelease()

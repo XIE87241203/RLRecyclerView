@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="refresh_header_continue_drop_tips">继续下拉刷新</string>
-    <string name="refresh_header_refresh_finish">刷新完成</string>
-    <string name="refresh_header_refreshing">刷新中…</string>
-    <string name="refresh_header_loosen_refresh">松开刷新</string>
-    <string name="load_more_loading">正在加载…</string>
-    <string name="load_more_error_click">加载失败，点击重试</string>
-    <string name="load_more_no_more">没有更多了</string>
+    <string name="refresh_header_continue_drop_tips">Continue to pull down to refresh</string>
+    <string name="refresh_header_refresh_finish">Refresh completed</string>
+    <string name="refresh_header_refreshing">Refreshing…</string>
+    <string name="refresh_header_loosen_refresh">Release to refresh</string>
+    <string name="load_more_loading">Loading…</string>
+    <string name="load_more_error_click">Loading failed, click here to try again</string>
+    <string name="load_more_no_more">No more</string>
 
 </resources>

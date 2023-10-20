@@ -5,5 +5,5 @@ package com.xie.librlrecyclerview.other
  * Describe:
  */
 enum class LoadMoreFooterState {
-    NORMAL, LOAD_MORE_LOADING, LOAD_MORE_ERROR, LOAD_MORE_LAST_PAGE
+    NORMAL, START_LOAD_MORE, LOAD_MORE_ERROR, LOAD_MORE_LAST_PAGE, LOAD_MORE_LOADING
 }

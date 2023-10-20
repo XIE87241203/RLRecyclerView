@@ -5,5 +5,5 @@ package com.xie.librlrecyclerview.other
  * Describe:同于设置列表的加载刷新显示
  */
 enum class RLRecyclerState {
-    NORMAL, LOAD_MORE_ERROR, LOAD_MORE_LAST_PAGE;
+    NORMAL, LOAD_MORE_ERROR, LOAD_MORE_LAST_PAGE, LOAD_MORE_LOADING;
 }

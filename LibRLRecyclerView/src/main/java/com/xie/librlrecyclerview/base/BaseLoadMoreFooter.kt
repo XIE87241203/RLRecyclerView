@@ -45,9 +45,12 @@ abstract class BaseLoadMoreFooter : RelativeLayout {
         this.state = state
         when (state) {
             LoadMoreFooterState.NORMAL -> onLoadMoreFinish()
-            LoadMoreFooterState.LOAD_MORE_LOADING -> {
+            LoadMoreFooterState.START_LOAD_MORE -> {
                 onLoading()
                 onLoadMoreListener?.onLoadMore()
+            }
+            LoadMoreFooterState.LOAD_MORE_LOADING -> {
+                onLoading()
             }
             LoadMoreFooterState.LOAD_MORE_ERROR -> onLoadMoreError()
             LoadMoreFooterState.LOAD_MORE_LAST_PAGE -> onNoMore()
@@ -55,6 +58,10 @@ abstract class BaseLoadMoreFooter : RelativeLayout {
     }
 
     fun startLoadMore() {
+        setLoadMoreState(LoadMoreFooterState.START_LOAD_MORE)
+    }
+
+    fun showLoadMoreLoading(){
         setLoadMoreState(LoadMoreFooterState.LOAD_MORE_LOADING)
     }
 
@@ -85,7 +92,7 @@ abstract class BaseLoadMoreFooter : RelativeLayout {
     }
 
     fun isLoadMoreLoading(): Boolean {
-        return getState() == LoadMoreFooterState.LOAD_MORE_LOADING
+        return getState() == LoadMoreFooterState.START_LOAD_MORE
     }
 
     fun isNoMore(): Boolean {
