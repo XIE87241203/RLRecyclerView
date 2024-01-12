@@ -101,6 +101,8 @@ class MainActivity : AppCompatActivity() {
                                 loadNextPage()
                                 binding.rlRv.setRLState(RLRecyclerState.LOAD_MORE_LAST_PAGE)
                             }
+
+                            else -> {}
                         }
                         showTestResult = true
                     } else {
