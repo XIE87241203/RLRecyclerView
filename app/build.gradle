@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android'
 android {
     defaultConfig {
         applicationId "com.xie.rlrecyclerview"
-        minSdkVersion 19
+        minSdkVersion 16
         compileSdk 34
         targetSdkVersion 34
         versionCode 1
