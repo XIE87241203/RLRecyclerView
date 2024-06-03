@@ -10,7 +10,10 @@ import com.xie.librlrecyclerview.other.UpdateType
  * Created by Anthony on 2020/9/7.
  * Describe:
  */
-class RLListDataHelper2<T>(val listAdapter: RLRecyclerAdapter<T>) {
+class RLListDataHelper2<T>(
+    private val listAdapter: RLRecyclerAdapter<T>,
+    private val diffCallBack: IDiffItemCallBack<T>
+) {
 
     interface DataUpdatedListener<T> {
         /**
@@ -59,8 +62,15 @@ class RLListDataHelper2<T>(val listAdapter: RLRecyclerAdapter<T>) {
                 listData.addAll(updateList.listData)
                 listAdapter.notifyDataSetChanged()
             }
+
             UpdateType.INSERT_DATA, UpdateType.CHANGE_LIST -> {
-                val result = DiffUtil.calculateDiff(DiffItemCallBack(listData, updateList.listData))
+                val result = DiffUtil.calculateDiff(
+                    DiffItemCallBack(
+                        listData,
+                        updateList.listData,
+                        diffCallBack
+                    )
+                )
                 listData.clear()
                 listData.addAll(updateList.listData)
                 result.dispatchUpdatesTo(adapterCallBack)

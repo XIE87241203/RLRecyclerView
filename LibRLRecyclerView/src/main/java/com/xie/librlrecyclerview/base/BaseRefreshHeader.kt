@@ -20,13 +20,13 @@ import com.xie.librlrecyclerview.other.OnRefreshListener
 abstract class BaseRefreshHeader : LinearLayout {
     companion object {
         const val MIN_HEIGHT = 0//最小高度
-        const val REFRESH_HEIGHT_FACTOR: Double = 0.9//下拉高度超过90%就判定为需要刷新
-        const val MOVE_RESISTANCE_FACTOR: Double = 2.5 //头部滑动的阻力系数
+        const val REFRESH_HEIGHT_FACTOR: Float = 0.9f//下拉高度超过90%就判定为需要刷新
+        const val MOVE_RESISTANCE_FACTOR: Float = 2.5f //头部滑动的阻力系数
     }
 
     private var releaseAnimator: ValueAnimator? = null
     internal var state = RefreshHeaderState.REFRESH_NORMAL
-    var allOffset: Double = 0.0//当前总位移
+    var allOffset: Float = 0.0f//当前总位移
     private var isAnimatorCancel = false
     var onRefreshListener: OnRefreshListener? = null
 
@@ -61,7 +61,7 @@ abstract class BaseRefreshHeader : LinearLayout {
         layoutParams = myLayoutParams
         val contentView = getContentView(context)
         addView(contentView, lp)
-        setVisibleHeight(MIN_HEIGHT.toDouble())
+        setVisibleHeight(MIN_HEIGHT.toFloat())
     }
 
     /**
@@ -82,9 +82,9 @@ abstract class BaseRefreshHeader : LinearLayout {
     /**
      * 设置Header的显示高度
      */
-    open fun setVisibleHeight(height: Double) {
+    open fun setVisibleHeight(height: Float) {
         var visibleHeight = height
-        if (visibleHeight < MIN_HEIGHT) visibleHeight = MIN_HEIGHT.toDouble()
+        if (visibleHeight < MIN_HEIGHT) visibleHeight = MIN_HEIGHT.toFloat()
         val lp = layoutParams
         lp.height = visibleHeight.toInt()
         requestLayout()
@@ -95,14 +95,14 @@ abstract class BaseRefreshHeader : LinearLayout {
      * 下拉移动
      *  @param offset 单次移动的位移
      */
-    fun onDragMove(offset: Double) {
+    fun onDragMove(offset: Float) {
         if (state == RefreshHeaderState.REFRESHING || state == RefreshHeaderState.REFRESH_FINISH) return
         releaseAnimator?.let {
             if (it.isStarted) it.cancel()
         }
-        var tempHeight: Double = offset + allOffset
+        var tempHeight: Float = offset + allOffset
         if (getMaxHeight() != -1 && tempHeight > getMaxHeight()) {
-            tempHeight = getMaxHeight().toDouble()
+            tempHeight = getMaxHeight().toFloat()
         }
         setVisibleHeight(tempHeight)
         if (allOffset >= getRefreshingContentHeight() * REFRESH_HEIGHT_FACTOR) {
@@ -158,7 +158,7 @@ abstract class BaseRefreshHeader : LinearLayout {
             it.duration = 200
             it.addUpdateListener { animation: ValueAnimator ->
                 val value = animation.animatedValue as Float
-                setVisibleHeight(value.toInt().toDouble())
+                setVisibleHeight(value)
             }
             it.addListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator) {}
@@ -189,7 +189,7 @@ abstract class BaseRefreshHeader : LinearLayout {
         }
     }
 
-    open fun getVisibleHeight(): Double {
+    open fun getVisibleHeight(): Float {
         return allOffset
     }
 

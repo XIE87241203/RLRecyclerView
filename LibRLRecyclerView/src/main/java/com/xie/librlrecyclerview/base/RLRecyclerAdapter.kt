@@ -12,7 +12,7 @@ import com.xie.librlrecyclerview.other.DiffHeaderFootCallBack
  * Created by Anthony on 2020/9/4.
  * Describe:
  */
-abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolder>() {
+abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolder>(),IDiffItemCallBack<T> {
     companion object {
         const val BASE_ITEM_TYPE_HEADER = 100001
         const val SPECIAL_ITEM_TYPE_REFRESH_HEADER = 100000
@@ -26,9 +26,9 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
 
     internal var loadMoreKey = -1
 
-    private val dataHelper: RLListDataHelper2<T> by lazy { RLListDataHelper2(this) }
+    private val dataHelper: RLListDataHelper2<T> by lazy { RLListDataHelper2(this , this) }
 
-    val adapterFootCallBack = object : ListUpdateCallback {
+    private val adapterFootCallBack = object : ListUpdateCallback {
         override fun onInserted(position: Int, count: Int) {
             notifyItemRangeInserted(position + getHeadersCount() + getRealItemCount(), count)
         }
@@ -51,6 +51,17 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
                 payload
             )
         }
+    }
+
+    /**
+     * 判断是否是同一个item，有id的item需要判断id，否则不能正确调用itemChange
+     */
+    override fun areItemTheSame(oldItem: T, newItem: T): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentTheSame(oldItem: T, newItem: T): Boolean {
+        return oldItem == newItem
     }
 
     abstract fun onCreateViewHolderNew(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder

@@ -3,20 +3,28 @@ package com.xie.rlrecyclerview
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.xie.librlrecyclerview.model.UpdateList
 import com.xie.librlrecyclerview.other.*
+import com.xie.rlrecyclerview.data_source.MyItem
+import com.xie.rlrecyclerview.data_source.MyItemDataSource
 import com.xie.rlrecyclerview.databinding.ActivityMainBinding
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    lateinit var adapter: MyAdapter
-    var page = 1
-    val listData = ArrayList<String>()
-    var testType = TestType.TEST_NORMAL
-    var showTestResult = false
-    lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: MyAdapter
+    private val listData = ArrayList<MyItem>()
+    private  var testType = TestType.TEST_NORMAL
+    private lateinit var binding: ActivityMainBinding
+    private val dataSource = MyItemDataSource()
+
+    companion object{
+        const val PAGE_SIZE = 30
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,19 +49,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.rlRv.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
-//        binding.rlRv.layoutManager = LinearLayoutManager(this)
         adapter = MyAdapter()
         adapter.onItemClickListener = object : MyAdapter.OnItemClickListener {
 
-            override fun onLongClick(info: String) {
+            override fun onLongClick(info: MyItem) {
                 listData.remove(info)
                 adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
             }
 
-            override fun onClick(info: String) {
+            override fun onClick(info: MyItem) {
                 val index = listData.indexOf(info)
                 if (index != -1) {
-                    listData[index] = "已点击" + listData[index]
+                    //需要复制新对象，否则改动会影响旧的info，导致对比不出差别
+                    listData[index] = info.copy()
+                    listData[index].name = "已点击${listData[index].id}"
                     adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
                 }
             }
@@ -72,16 +81,14 @@ class MainActivity : AppCompatActivity() {
         binding.rlRv.onRefreshListener = object : OnRefreshListener {
             override fun onRefresh() {
                 //刷新
-                Handler().postDelayed({
-                    page = 1
+                lifecycleScope.launch {
                     listData.clear()
-                    listData.addAll(getListData(page, 30))
+                    listData.addAll(getListInfo(true))
                     //用替换数据的方式刷新列表
                     adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
                     //刷新或加载完成，隐藏刷新和加载UI
                     binding.rlRv.setRLState(RLRecyclerState.NORMAL)
-                    showTestResult = false
-                }, 2000)
+                }
             }
         }
         //打开自动加载开关
@@ -89,46 +96,34 @@ class MainActivity : AppCompatActivity() {
         binding.rlRv.setAutoLoadMoreEnable(true, 2)
         binding.rlRv.onLoadMoreListener = object : OnLoadMoreListener {
             override fun onLoadMore() {
-                //加载更多
-                Handler().postDelayed({
-                    //测试状态只会显示在第一次加载下一页
-                    if (!showTestResult && testType != TestType.TEST_NORMAL) {
-                        when (testType) {
-                            TestType.TEST_LOAD_MORE_ERROR -> {
-                                binding.rlRv.setRLState(RLRecyclerState.LOAD_MORE_ERROR)
-                            }
-                            TestType.TEST_LOAD_MORE_LAST_PAGE -> {
-                                loadNextPage()
-                                binding.rlRv.setRLState(RLRecyclerState.LOAD_MORE_LAST_PAGE)
-                            }
+                lifecycleScope.launch {
 
-                            else -> {}
+                    when(testType){
+                        TestType.TEST_LOAD_MORE_ERROR -> {
+                            delay(2000)
+                            binding.rlRv.setRLState(RLRecyclerState.LOAD_MORE_ERROR)
                         }
-                        showTestResult = true
-                    } else {
-                        loadNextPage()
-                        //刷新或加载完成，隐藏刷新和加载UI
-                        binding.rlRv.setRLState(RLRecyclerState.NORMAL)
+                        TestType.TEST_LOAD_MORE_LAST_PAGE -> {
+                            listData.addAll(getListInfo(false))
+                            //用替换数据的方式刷新列表
+                            adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
+                            binding.rlRv.setRLState(RLRecyclerState.LOAD_MORE_LAST_PAGE)
+                        }
+                        else ->{
+                            listData.addAll(getListInfo(false))
+                            //用替换数据的方式刷新列表
+                            adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
+                            //刷新或加载完成，隐藏刷新和加载UI
+                            binding.rlRv.setRLState(RLRecyclerState.NORMAL)
+                        }
                     }
-                }, 2000)
+                }
             }
         }
         binding.rlRv.startRefresh()
     }
 
-    fun loadNextPage() {
-        page++
-        listData.addAll(getListData(page, 30))
-        //用插入数据的方式刷新列表
-        adapter.updateList(UpdateList(UpdateType.INSERT_DATA, listData))
-    }
-
-    fun getListData(page: Int, size: Int): ArrayList<String> {
-        val start = ((page - 1) * size) + 1
-        val result = ArrayList<String>()
-        for (i in start..size * page) {
-            result.add("第${i}个")
-        }
-        return result
+    private suspend fun getListInfo(isRefresh:Boolean): List<MyItem>{
+        return dataSource.getNewItems(isRefresh, PAGE_SIZE)
     }
 }

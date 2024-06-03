@@ -14,5 +14,5 @@ data class UpdateList<T>(
     /**
      * 列表的所有数据,用于替换掉adapter内数据
      */
-    val listData: MutableList<T>
+    val listData: List<T>
 )

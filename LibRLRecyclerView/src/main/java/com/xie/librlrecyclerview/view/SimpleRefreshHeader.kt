@@ -1,12 +1,12 @@
 package com.xie.librlrecyclerview.view
 
 import android.content.Context
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import com.xie.librlrecyclerview.R
 import com.xie.librlrecyclerview.base.BaseRefreshHeader
 
@@ -16,7 +16,9 @@ import com.xie.librlrecyclerview.base.BaseRefreshHeader
  */
 class SimpleRefreshHeader(context: Context) : BaseRefreshHeader(context) {
     lateinit var textView: TextView
-    override fun getRefreshingContentHeight(): Int = 200
+    override fun getRefreshingContentHeight(): Int{
+        return dpToPx(context,60f).toInt()
+    }
 
     override fun getMaxHeight(): Int = -1
 
@@ -47,6 +49,11 @@ class SimpleRefreshHeader(context: Context) : BaseRefreshHeader(context) {
 
     override fun onRefreshNormal() {
         textView.setText(R.string.refresh_header_continue_drop_tips)
+    }
+
+    fun dpToPx(context: Context, valueInDp: Float): Float {
+        val metrics = context.resources.displayMetrics
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, metrics)
     }
 
 }
