@@ -29,6 +29,7 @@ abstract class BaseRefreshHeader : LinearLayout {
     var allOffset: Float = 0.0f//当前总位移
     private var isAnimatorCancel = false
     var onRefreshListener: OnRefreshListener? = null
+    private var isNotify = true
 
 
     constructor(context: Context) : super(context) {
@@ -57,12 +58,25 @@ abstract class BaseRefreshHeader : LinearLayout {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         lp.gravity = Gravity.BOTTOM
-        myLayoutParams.setMargins(0,-MIN_HEIGHT,0,0)
+        myLayoutParams.setMargins(0, -MIN_HEIGHT, 0, 0)
         layoutParams = myLayoutParams
         val contentView = getContentView(context)
         addView(contentView, lp)
         setVisibleHeight(MIN_HEIGHT.toFloat())
     }
+
+    /**
+     * 手动设置开始刷新
+     */
+    fun setRefreshing(refreshing: Boolean) {
+        isNotify = false
+        if (refreshing) {
+            startRefresh()
+        } else {
+            finishRefresh()
+        }
+    }
+
 
     /**
      * 触发刷新UI显示
@@ -83,24 +97,30 @@ abstract class BaseRefreshHeader : LinearLayout {
      * 设置Header的显示高度
      */
     open fun setVisibleHeight(height: Float) {
-        var visibleHeight = height
-        if (visibleHeight < MIN_HEIGHT) visibleHeight = MIN_HEIGHT.toFloat()
+        var mVisibleHeight = height
+        if (mVisibleHeight < MIN_HEIGHT) mVisibleHeight = MIN_HEIGHT.toFloat()
         val lp = layoutParams
-        lp.height = visibleHeight.toInt()
-        requestLayout()
-        allOffset = visibleHeight
+        lp.height = mVisibleHeight.toInt()
+        layoutParams = lp
+        allOffset = mVisibleHeight
+    }
+
+    fun isBusy():Boolean{
+        //刷新中和刷新完成回弹时返回正在繁忙
+        return state == RefreshHeaderState.REFRESHING || state == RefreshHeaderState.REFRESH_FINISH
     }
 
     /**
      * 下拉移动
-     *  @param offset 单次移动的位移
+     *  @param offset 总位移
      */
     fun onDragMove(offset: Float) {
-        if (state == RefreshHeaderState.REFRESHING || state == RefreshHeaderState.REFRESH_FINISH) return
+        if (isBusy()) return
         releaseAnimator?.let {
             if (it.isStarted) it.cancel()
         }
-        var tempHeight: Float = offset + allOffset
+//        var tempHeight: Float = offset + allOffset
+        var tempHeight: Float = offset
         if (getMaxHeight() != -1 && tempHeight > getMaxHeight()) {
             tempHeight = getMaxHeight().toFloat()
         }
@@ -128,6 +148,7 @@ abstract class BaseRefreshHeader : LinearLayout {
         if (state == RefreshHeaderState.REFRESHING) return
         //判断是否可以开始刷新
         if (state == RefreshHeaderState.REFRESH_PREPARE) {
+            isNotify = true
             //开始刷新
             startRefresh()
         } else {
@@ -142,6 +163,16 @@ abstract class BaseRefreshHeader : LinearLayout {
                 showHeightAnimator(height.toFloat(), MIN_HEIGHT.toFloat())
             }
         }
+    }
+
+    fun reset() {
+        updateHeaderState(RefreshHeaderState.REFRESH_NORMAL)
+        onDragMove(MIN_HEIGHT.toFloat())
+        releaseAnimator?.cancel()
+    }
+
+    fun isRefresh():Boolean{
+        return state == RefreshHeaderState.REFRESHING
     }
 
     /**
@@ -168,10 +199,12 @@ abstract class BaseRefreshHeader : LinearLayout {
                             RefreshHeaderState.REFRESH_PREPARE -> updateHeaderState(
                                 RefreshHeaderState.REFRESHING
                             )
+
                             RefreshHeaderState.REFRESH_FINISH -> updateHeaderState(
                                 RefreshHeaderState.REFRESH_NORMAL
                             )
-                            else ->{}
+
+                            else -> {}
                         }
                     } else {
                         isAnimatorCancel = false
@@ -200,7 +233,9 @@ abstract class BaseRefreshHeader : LinearLayout {
             RefreshHeaderState.REFRESH_PREPARE -> onRefreshPrepare()
             RefreshHeaderState.REFRESH_FINISH -> onRefreshFinish()
             RefreshHeaderState.REFRESHING -> {
-                onRefreshListener?.onRefresh()
+                if (isNotify) {
+                    onRefreshListener?.onRefresh()
+                }
                 onRefreshing()
             }
         }

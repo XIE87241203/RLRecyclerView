@@ -33,8 +33,17 @@
             android:text="@string/test_load_more_last_page" />
     </RadioGroup>
 
-    <com.xie.librlrecyclerview.view.RLRecyclerView
-        android:id="@+id/rl_rv"
+    <com.xie.librlrecyclerview.view.refresh_layout.RLRefreshLayout
+        android:id="@+id/rl_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <com.xie.librlrecyclerview.view.RLRecyclerView
+            android:id="@+id/rl_rv"
+            android:overScrollMode="never"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </com.xie.librlrecyclerview.view.refresh_layout.RLRefreshLayout>
 </LinearLayout>

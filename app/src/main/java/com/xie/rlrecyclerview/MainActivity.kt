@@ -35,15 +35,18 @@ class MainActivity : AppCompatActivity() {
             when (checkedId) {
                 R.id.rb_test_normal -> {
                     testType = TestType.TEST_NORMAL
-                    binding.rlRv.startRefresh()
+                    binding.rlRefreshLayout.setRefreshing(true)
+                    refreshData()
                 }
                 R.id.rb_test_load_more_error -> {
                     testType = TestType.TEST_LOAD_MORE_ERROR
-                    binding.rlRv.startRefresh()
+                    binding.rlRefreshLayout.setRefreshing(true)
+                    refreshData()
                 }
                 R.id.rb_test_last_page -> {
                     testType = TestType.TEST_LOAD_MORE_LAST_PAGE
-                    binding.rlRv.startRefresh()
+                    binding.rlRefreshLayout.setRefreshing(true)
+                    refreshData()
                 }
             }
         }
@@ -76,24 +79,14 @@ class MainActivity : AppCompatActivity() {
 
         binding.rlRv.adapter = adapter
         //打开下拉刷新开关
-        binding.rlRv.refreshEnable = true
-        //设置下拉刷新回调
-        binding.rlRv.onRefreshListener = object : OnRefreshListener {
+        binding.rlRefreshLayout.setOnRefreshListener(object :OnRefreshListener{
             override fun onRefresh() {
-                //刷新
-                lifecycleScope.launch {
-                    listData.clear()
-                    listData.addAll(getListInfo(true))
-                    //用替换数据的方式刷新列表
-                    adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
-                    //刷新或加载完成，隐藏刷新和加载UI
-                    binding.rlRv.setRLState(RLRecyclerState.NORMAL)
-                }
+                refreshData()
             }
-        }
+        })
         //打开自动加载开关
         //第二个参数为剩下多少个item未展示时触发下一页的加载
-        binding.rlRv.setAutoLoadMoreEnable(true, 2)
+        binding.rlRv.setAutoLoadMoreEnable(false, 2)
         binding.rlRv.onLoadMoreListener = object : OnLoadMoreListener {
             override fun onLoadMore() {
                 lifecycleScope.launch {
@@ -120,7 +113,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.rlRv.startRefresh()
+        binding.rlRefreshLayout.setRefreshing(true)
+        refreshData()
+    }
+
+    private fun refreshData(){
+        //刷新
+        lifecycleScope.launch {
+            listData.clear()
+            listData.addAll(getListInfo(true))
+            //用替换数据的方式刷新列表
+            adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
+            //刷新或加载完成，隐藏刷新和加载UI
+            binding.rlRv.setRLState(RLRecyclerState.NORMAL)
+            binding.rlRefreshLayout.setRefreshing(false)
+        }
     }
 
     private suspend fun getListInfo(isRefresh:Boolean): List<MyItem>{
