@@ -1,6 +1,4 @@
-package com.xie.librlrecyclerview.model
-
-import com.xie.librlrecyclerview.other.UpdateType
+package com.xie.librlrecyclerview.recycler_view.model
 
 /**
  * Created by Anthony on 2020/9/7.

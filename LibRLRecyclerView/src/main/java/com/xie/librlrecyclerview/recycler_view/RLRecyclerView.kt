@@ -1,12 +1,12 @@
-package com.xie.librlrecyclerview.view
+package com.xie.librlrecyclerview.recycler_view
 
 import android.content.Context
 import android.util.AttributeSet
 import androidx.recyclerview.widget.RecyclerView
-import com.xie.librlrecyclerview.base.BaseLoadMoreFooter
-import com.xie.librlrecyclerview.base.RLRecyclerAdapter
-import com.xie.librlrecyclerview.other.OnLoadMoreListener
-import com.xie.librlrecyclerview.other.RLRecyclerState
+import com.xie.librlrecyclerview.recycler_view.base.BaseLoadMoreFooter
+import com.xie.librlrecyclerview.recycler_view.base.RLRecyclerAdapter
+import com.xie.librlrecyclerview.recycler_view.other.OnLoadMoreListener
+import com.xie.librlrecyclerview.recycler_view.model.RLRecyclerState
 
 /**
  * Created by Anthony on 2020/9/4.

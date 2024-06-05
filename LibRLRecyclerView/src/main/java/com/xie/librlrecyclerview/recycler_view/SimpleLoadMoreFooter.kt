@@ -1,10 +1,10 @@
-package com.xie.librlrecyclerview.view
+package com.xie.librlrecyclerview.recycler_view
 
 import android.content.Context
 import com.xie.librlrecyclerview.R
-import com.xie.librlrecyclerview.base.BaseLoadMoreFooter
+import com.xie.librlrecyclerview.recycler_view.base.BaseLoadMoreFooter
 import com.xie.librlrecyclerview.databinding.ViewSimpleLoadMoreFooterBinding
-import com.xie.librlrecyclerview.other.LoadMoreFooterState
+import com.xie.librlrecyclerview.recycler_view.model.LoadMoreFooterState
 
 /**
  * Created by Anthony on 2020/9/4.

@@ -1,4 +1,4 @@
-package com.xie.librlrecyclerview.view.refresh_layout
+package com.xie.librlrecyclerview.refresh_layout
 
 import android.animation.Animator
 import android.animation.ValueAnimator
@@ -18,11 +18,8 @@ import androidx.core.view.NestedScrollingParent
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
 import androidx.core.widget.ListViewCompat
-import com.xie.librlrecyclerview.base.BaseRefreshHeader
-import com.xie.librlrecyclerview.other.LogUtil
-import com.xie.librlrecyclerview.other.OnRefreshListener
-import com.xie.librlrecyclerview.other.RefreshState
-import com.xie.librlrecyclerview.view.SimpleRefreshHeader
+import com.xie.librlrecyclerview.recycler_view.other.OnRefreshListener
+import com.xie.librlrecyclerview.recycler_view.model.RefreshState
 import kotlin.math.abs
 
 /**
@@ -71,7 +68,7 @@ class RLRefreshLayout @JvmOverloads constructor(
         private val LOG_TAG: String = RLRefreshLayout::class.java.getSimpleName()
         private const val INVALID_POINTER = -1
         private const val REFRESH_HEIGHT_FACTOR: Float = 0.9f//下拉高度超过90%就判定为需要刷新
-        private const val MOVE_RESISTANCE_FACTOR: Float = 0.4f //头部滑动的阻力系数
+        private const val MOVE_RESISTANCE_FACTOR: Float = 0.6f //头部滑动的阻力系数
     }
 
     init {

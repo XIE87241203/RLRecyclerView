@@ -1,4 +1,4 @@
-package com.xie.librlrecyclerview.base
+package com.xie.librlrecyclerview.recycler_view.base
 
 import android.content.Context
 import android.util.SparseArray

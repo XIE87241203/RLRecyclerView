@@ -1,10 +1,10 @@
-package com.xie.librlrecyclerview.model
+package com.xie.librlrecyclerview.recycler_view.model
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
-import com.xie.librlrecyclerview.base.RLRecyclerAdapter
-import com.xie.librlrecyclerview.other.DiffItemCallBack
-import com.xie.librlrecyclerview.other.UpdateType
+import com.xie.librlrecyclerview.recycler_view.base.RLRecyclerAdapter
+import com.xie.librlrecyclerview.recycler_view.other.DiffItemCallBack
+import com.xie.librlrecyclerview.recycler_view.other.IDiffItemCallBack
 
 /**
  * Created by Anthony on 2020/9/7.

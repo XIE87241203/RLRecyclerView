@@ -1,17 +1,12 @@
-package com.xie.librlrecyclerview.base
+package com.xie.librlrecyclerview.refresh_layout
 
-import android.animation.Animator
-import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.recyclerview.widget.RecyclerView
-import com.xie.librlrecyclerview.other.RefreshState
-import com.xie.librlrecyclerview.other.LogUtil
-import com.xie.librlrecyclerview.other.OnRefreshListener
+import com.xie.librlrecyclerview.recycler_view.model.RefreshState
 
 /**
  * Created by Anthony on 2020/9/4.
@@ -41,16 +36,11 @@ abstract class BaseRefreshHeader : LinearLayout {
     }
 
     private fun initView(context: Context) {
-        val myLayoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
         val lp = LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            getRefreshingContentHeight()
         )
         lp.gravity = Gravity.BOTTOM
-        layoutParams = myLayoutParams
         val contentView = getContentView(context)
         addView(contentView, lp)
     }

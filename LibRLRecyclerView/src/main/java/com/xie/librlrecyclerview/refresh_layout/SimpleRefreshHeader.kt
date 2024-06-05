@@ -1,22 +1,18 @@
-package com.xie.librlrecyclerview.view
+package com.xie.librlrecyclerview.refresh_layout
 
 import android.content.Context
-import android.graphics.Color
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import com.xie.librlrecyclerview.R
-import com.xie.librlrecyclerview.base.BaseRefreshHeader
 
 /**
  * Created by Anthony on 2020/9/4.
  * Describe:
  */
 class SimpleRefreshHeader(context: Context) : BaseRefreshHeader(context) {
-    lateinit var textView: TextView
+    private lateinit var textView: TextView
     override fun getRefreshingContentHeight(): Int{
         return dpToPx(context,60f).toInt()
     }
@@ -24,16 +20,11 @@ class SimpleRefreshHeader(context: Context) : BaseRefreshHeader(context) {
     override fun getMaxHeight(): Int = -1
 
     override fun getContentView(context: Context): View {
-        val linearLayout = LinearLayout(context)
-        linearLayout.gravity = Gravity.BOTTOM
         textView = TextView(context)
-        val layoutParams =
-            LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, getRefreshingContentHeight())
         textView.textSize = 20f
         textView.gravity = Gravity.CENTER
         textView.text = "继续下拉刷新"
-        linearLayout.addView(textView, layoutParams)
-        return linearLayout
+        return textView
     }
 
     override fun onRefreshing() {

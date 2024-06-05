@@ -1,7 +1,6 @@
-package com.xie.librlrecyclerview.other
+package com.xie.librlrecyclerview.recycler_view.other
 
 import androidx.recyclerview.widget.DiffUtil
-import com.xie.librlrecyclerview.model.IDiffItemCallBack
 
 /**
  * @Author XJA87
@@ -10,7 +9,8 @@ import com.xie.librlrecyclerview.model.IDiffItemCallBack
 class DiffItemCallBack<T>(
     private val oldList: List<T>,
     private val newList: List<T>,
-    private var diffCallBack: IDiffItemCallBack<T>) : DiffUtil.Callback() {
+    private var diffCallBack: IDiffItemCallBack<T>
+) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
         return oldList.size

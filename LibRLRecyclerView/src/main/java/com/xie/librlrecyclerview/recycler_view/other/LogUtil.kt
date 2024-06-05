@@ -1,4 +1,4 @@
-package com.xie.librlrecyclerview.other
+package com.xie.librlrecyclerview.recycler_view.other
 
 import android.util.Log
 

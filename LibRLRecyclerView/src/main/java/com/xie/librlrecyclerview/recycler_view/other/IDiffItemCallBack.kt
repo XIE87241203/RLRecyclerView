@@ -1,4 +1,4 @@
-package com.xie.librlrecyclerview.model
+package com.xie.librlrecyclerview.recycler_view.other
 
 /**
  * @Author XIE

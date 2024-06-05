@@ -3,9 +3,9 @@ package com.xie.rlrecyclerview
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.xie.librlrecyclerview.base.BaseRecyclerViewHolder
-import com.xie.librlrecyclerview.base.RLRecyclerAdapter
-import com.xie.librlrecyclerview.model.UpdateList
+import com.xie.librlrecyclerview.recycler_view.base.BaseRecyclerViewHolder
+import com.xie.librlrecyclerview.recycler_view.base.RLRecyclerAdapter
+import com.xie.librlrecyclerview.recycler_view.model.UpdateList
 import com.xie.rlrecyclerview.data_source.MyItem
 
 /**

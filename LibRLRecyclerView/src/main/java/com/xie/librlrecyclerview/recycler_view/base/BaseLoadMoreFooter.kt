@@ -1,10 +1,10 @@
-package com.xie.librlrecyclerview.base
+package com.xie.librlrecyclerview.recycler_view.base
 
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.RelativeLayout
-import com.xie.librlrecyclerview.other.LoadMoreFooterState
-import com.xie.librlrecyclerview.other.OnLoadMoreListener
+import com.xie.librlrecyclerview.recycler_view.model.LoadMoreFooterState
+import com.xie.librlrecyclerview.recycler_view.other.OnLoadMoreListener
 
 /**
  * Created by Anthony on 2020/9/4.
@@ -87,7 +87,7 @@ abstract class BaseLoadMoreFooter : RelativeLayout {
 
     protected abstract fun onLoadMoreError()
 
-    fun getState():LoadMoreFooterState{
+    fun getState(): LoadMoreFooterState {
         return state
     }
 

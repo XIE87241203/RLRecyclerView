@@ -1,18 +1,22 @@
-package com.xie.librlrecyclerview.base
+package com.xie.librlrecyclerview.recycler_view.base
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.collection.SparseArrayCompat
 import androidx.recyclerview.widget.*
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
-import com.xie.librlrecyclerview.model.*
-import com.xie.librlrecyclerview.other.DiffHeaderFootCallBack
+import com.xie.librlrecyclerview.recycler_view.other.DiffHeaderFootCallBack
+import com.xie.librlrecyclerview.recycler_view.other.IDiffItemCallBack
+import com.xie.librlrecyclerview.recycler_view.model.RLListDataHelper2
+import com.xie.librlrecyclerview.recycler_view.model.UpdateList
+import com.xie.librlrecyclerview.refresh_layout.BaseRefreshHeader
 
 /**
  * Created by Anthony on 2020/9/4.
  * Describe:
  */
-abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolder>(),IDiffItemCallBack<T> {
+abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolder>(),
+    IDiffItemCallBack<T> {
     companion object {
         const val BASE_ITEM_TYPE_HEADER = 100001
         const val SPECIAL_ITEM_TYPE_REFRESH_HEADER = 100000

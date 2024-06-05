@@ -1,14 +1,17 @@
 package com.xie.rlrecyclerview
 
 import android.os.Bundle
-import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.xie.librlrecyclerview.model.UpdateList
+import com.xie.librlrecyclerview.recycler_view.model.UpdateList
 import com.xie.librlrecyclerview.other.*
+import com.xie.librlrecyclerview.recycler_view.other.LogUtil
+import com.xie.librlrecyclerview.recycler_view.other.OnLoadMoreListener
+import com.xie.librlrecyclerview.recycler_view.other.OnRefreshListener
+import com.xie.librlrecyclerview.recycler_view.model.RLRecyclerState
+import com.xie.librlrecyclerview.recycler_view.model.UpdateType
 import com.xie.rlrecyclerview.data_source.MyItem
 import com.xie.rlrecyclerview.data_source.MyItemDataSource
 import com.xie.rlrecyclerview.databinding.ActivityMainBinding
