@@ -38,7 +38,7 @@
         android:id="@+id/rl_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
+        <!--    加入其他控件，这里使用RLRecyclerView做例子    -->
         <com.xie.librlrecyclerview.recycler_view.RLRecyclerView
             android:id="@+id/rl_rv"
             android:layout_width="match_parent"

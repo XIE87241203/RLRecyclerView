@@ -92,6 +92,74 @@ class RLRefreshLayout @JvmOverloads constructor(
         addView(mRefreshUIView, 0)
     }
 
+    /**
+     * @param refreshing 设置是否显示正在刷新样式，此方法不会回调OnRefreshListener
+     */
+    fun setRefreshing(refreshing: Boolean) {
+        if (refreshing) {
+            if (refreshState != RefreshState.REFRESHING) {
+                if (mRefreshUIView.visibility != VISIBLE) {
+                    mRefreshUIView.visibility = VISIBLE
+                }
+                //开始刷新
+                releaseAnimator?.cancel()
+                mNotify = false
+                updateState(RefreshState.REFRESH_PREPARE)
+                finishSpinner()
+            }
+        } else {
+            if (refreshState != RefreshState.REFRESH_NORMAL) {
+                releaseAnimator?.cancel()
+                mNotify = false
+                updateState(RefreshState.REFRESH_FINISH)
+                finishSpinner()
+            }
+        }
+    }
+
+    fun setOnRefreshListener(listener: OnRefreshListener?) {
+        onRefreshListener = listener
+    }
+
+
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        if (!enabled) {
+            reset()
+        }
+    }
+
+    /**
+     * @return Whether it is possible for the child view of this layout to
+     * scroll up. Override this if the child view is a custom view.
+     */
+    fun canChildScrollUp(): Boolean {
+        val childScrollUpCallback = mChildScrollUpCallback
+        if (childScrollUpCallback != null) {
+            return childScrollUpCallback.canChildScrollUp(this, mTarget)
+        }
+        val target = mTarget ?: return false
+        if (target is ListView) {
+            return ListViewCompat.canScrollList(target, -1)
+        }
+        return target.canScrollVertically(-1)
+    }
+
+    /**
+     * 设置一个回调覆盖以 [RLRefreshLayout.canChildScrollUp] 逻辑. 非空的回调会忽略内部逻辑.
+     * @param callback 呼叫[RLRefreshLayout.canChildScrollUp]时的回调
+     */
+    fun setOnChildScrollUpCallback(callback: OnChildScrollUpCallback?) {
+        mChildScrollUpCallback = callback
+    }
+
+    private fun reset() {
+        mRefreshUIView.visibility = GONE
+        scrollTo(0, 0)
+        updateState(RefreshState.REFRESH_NORMAL)
+        releaseAnimator?.cancel()
+    }
+
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         val width = measuredWidth
@@ -119,7 +187,7 @@ class RLRefreshLayout @JvmOverloads constructor(
         )
     }
 
-    public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (mTarget == null) {
             ensureTarget()
@@ -175,66 +243,14 @@ class RLRefreshLayout @JvmOverloads constructor(
         }
     }
 
-
-    fun reset() {
-        mRefreshUIView.visibility = GONE
-        scrollTo(0, 0)
-        updateState(RefreshState.REFRESH_NORMAL)
-        releaseAnimator?.cancel()
-    }
-
     private fun updateState(state: RefreshState) {
         refreshState = state
         mRefreshUIView.updateHeaderState(refreshState)
     }
 
-    override fun setEnabled(enabled: Boolean) {
-        super.setEnabled(enabled)
-        if (!enabled) {
-            reset()
-        }
-    }
-
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         reset()
-    }
-
-    /**
-     * Set the listener to be notified when a refresh is triggered via the swipe
-     * gesture.
-     */
-    fun setOnRefreshListener(listener: OnRefreshListener?) {
-        onRefreshListener = listener
-    }
-
-
-    /**
-     * Notify the widget that refresh state has changed. Do not call this when
-     * refresh is triggered by a swipe gesture.
-     *
-     * @param refreshing Whether or not the view should show refresh progress.
-     */
-    fun setRefreshing(refreshing: Boolean) {
-        if (refreshing) {
-            if (refreshState != RefreshState.REFRESHING) {
-                if (mRefreshUIView.visibility != VISIBLE) {
-                    mRefreshUIView.visibility = VISIBLE
-                }
-                //开始刷新
-                releaseAnimator?.cancel()
-                mNotify = false
-                updateState(RefreshState.REFRESH_PREPARE)
-                finishSpinner()
-            }
-        } else {
-            if (refreshState != RefreshState.REFRESH_NORMAL) {
-                releaseAnimator?.cancel()
-                mNotify = false
-                updateState(RefreshState.REFRESH_FINISH)
-                finishSpinner()
-            }
-        }
     }
 
     /**
@@ -257,31 +273,6 @@ class RLRefreshLayout @JvmOverloads constructor(
                 }
             }
         }
-    }
-
-
-    /**
-     * @return Whether it is possible for the child view of this layout to
-     * scroll up. Override this if the child view is a custom view.
-     */
-    fun canChildScrollUp(): Boolean {
-        val childScrollUpCallback = mChildScrollUpCallback
-        if (childScrollUpCallback != null) {
-            return childScrollUpCallback.canChildScrollUp(this, mTarget)
-        }
-        val target = mTarget ?: return false
-        if (target is ListView) {
-            return ListViewCompat.canScrollList(target, -1)
-        }
-        return target.canScrollVertically(-1)
-    }
-
-    /**
-     * 设置一个回调覆盖以 [RLRefreshLayout.canChildScrollUp] 逻辑. 非空的回调会忽略内部逻辑.
-     * @param callback 呼叫[RLRefreshLayout.canChildScrollUp]时的回调
-     */
-    fun setOnChildScrollUpCallback(callback: OnChildScrollUpCallback?) {
-        mChildScrollUpCallback = callback
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
