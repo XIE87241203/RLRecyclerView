@@ -6,7 +6,7 @@ static def releaseTime(){
 }
 
 static def releaseVersion(){
-    return "1.0"
+    return "1.0.1"
 }
 
 android {
