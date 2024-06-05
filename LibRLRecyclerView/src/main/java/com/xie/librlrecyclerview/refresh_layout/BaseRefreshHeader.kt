@@ -36,13 +36,13 @@ abstract class BaseRefreshHeader : LinearLayout {
         initView(context)
     }
 
-    private fun initView(context: Context) {
+    open fun initView(context: Context) {
+        val contentView = getContentView(context)
         val lp = LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             getRefreshingContentHeight()
         )
         lp.gravity = Gravity.BOTTOM
-        val contentView = getContentView(context)
         addView(contentView, lp)
     }
 
