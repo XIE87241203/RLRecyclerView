@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.xie.librlrecyclerview.other.RefreshHeaderState
+import com.xie.librlrecyclerview.other.RefreshState
 import com.xie.librlrecyclerview.other.LogUtil
 import com.xie.librlrecyclerview.other.OnRefreshListener
 
@@ -20,17 +20,9 @@ import com.xie.librlrecyclerview.other.OnRefreshListener
 abstract class BaseRefreshHeader : LinearLayout {
     companion object {
         const val MIN_HEIGHT = 0//最小高度
-        const val REFRESH_HEIGHT_FACTOR: Float = 0.9f//下拉高度超过90%就判定为需要刷新
-        const val MOVE_RESISTANCE_FACTOR: Float = 2.5f //头部滑动的阻力系数
     }
 
-    private var releaseAnimator: ValueAnimator? = null
-    internal var state = RefreshHeaderState.REFRESH_NORMAL
-    var allOffset: Float = 0.0f//当前总位移
-    private var isAnimatorCancel = false
-    var onRefreshListener: OnRefreshListener? = null
-    private var isNotify = true
-
+    internal var state = RefreshState.REFRESH_NORMAL
 
     constructor(context: Context) : super(context) {
         initView(context)
@@ -49,7 +41,7 @@ abstract class BaseRefreshHeader : LinearLayout {
     }
 
     private fun initView(context: Context) {
-        val myLayoutParams = RecyclerView.LayoutParams(
+        val myLayoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
@@ -58,186 +50,22 @@ abstract class BaseRefreshHeader : LinearLayout {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         lp.gravity = Gravity.BOTTOM
-        myLayoutParams.setMargins(0, -MIN_HEIGHT, 0, 0)
         layoutParams = myLayoutParams
         val contentView = getContentView(context)
         addView(contentView, lp)
-        setVisibleHeight(MIN_HEIGHT.toFloat())
-    }
-
-    /**
-     * 手动设置开始刷新
-     */
-    fun setRefreshing(refreshing: Boolean) {
-        isNotify = false
-        if (refreshing) {
-            startRefresh()
-        } else {
-            finishRefresh()
-        }
-    }
-
-
-    /**
-     * 触发刷新UI显示
-     */
-    internal fun startRefresh() {
-        val startHeight = layoutParams.height
-        val endHeight = getRefreshingContentHeight()
-        updateHeaderState(RefreshHeaderState.REFRESH_PREPARE)
-        showHeightAnimator(startHeight.toFloat(), endHeight.toFloat())
-    }
-
-    internal fun finishRefresh() {
-        updateHeaderState(RefreshHeaderState.REFRESH_FINISH)
-        onRelease()
-    }
-
-    /**
-     * 设置Header的显示高度
-     */
-    open fun setVisibleHeight(height: Float) {
-        var mVisibleHeight = height
-        if (mVisibleHeight < MIN_HEIGHT) mVisibleHeight = MIN_HEIGHT.toFloat()
-        val lp = layoutParams
-        lp.height = mVisibleHeight.toInt()
-        layoutParams = lp
-        allOffset = mVisibleHeight
-    }
-
-    fun isBusy():Boolean{
-        //刷新中和刷新完成回弹时返回正在繁忙
-        return state == RefreshHeaderState.REFRESHING || state == RefreshHeaderState.REFRESH_FINISH
-    }
-
-    /**
-     * 下拉移动
-     *  @param offset 总位移
-     */
-    fun onDragMove(offset: Float) {
-        if (isBusy()) return
-        releaseAnimator?.let {
-            if (it.isStarted) it.cancel()
-        }
-//        var tempHeight: Float = offset + allOffset
-        var tempHeight: Float = offset
-        if (getMaxHeight() != -1 && tempHeight > getMaxHeight()) {
-            tempHeight = getMaxHeight().toFloat()
-        }
-        setVisibleHeight(tempHeight)
-        if (allOffset >= getRefreshingContentHeight() * REFRESH_HEIGHT_FACTOR) {
-            //达到刷新需要高度（完全展示内容）
-            LogUtil.i("onDragMove: state:$state allOffset:$allOffset");
-            if (state != RefreshHeaderState.REFRESH_PREPARE) {
-                updateHeaderState(RefreshHeaderState.REFRESH_PREPARE)
-            }
-        } else {
-            //没达到刷新需要高度
-            LogUtil.i("onDragMove: state:$state allOffset:$allOffset");
-            if (state != RefreshHeaderState.REFRESH_NORMAL) {
-                updateHeaderState(RefreshHeaderState.REFRESH_NORMAL)
-            }
-        }
-    }
-
-    /**
-     * 下拉松开
-     */
-    fun onRelease() {
-        //刷新中不处理
-        if (state == RefreshHeaderState.REFRESHING) return
-        //判断是否可以开始刷新
-        if (state == RefreshHeaderState.REFRESH_PREPARE) {
-            isNotify = true
-            //开始刷新
-            startRefresh()
-        } else {
-            //不到可以刷新的高度
-            val height = layoutParams.height
-            if (height == MIN_HEIGHT) {
-                //不需要播放动画
-                updateHeaderState(RefreshHeaderState.REFRESH_NORMAL)
-                return
-            } else {
-                //播放动画
-                showHeightAnimator(height.toFloat(), MIN_HEIGHT.toFloat())
-            }
-        }
-    }
-
-    fun reset() {
-        updateHeaderState(RefreshHeaderState.REFRESH_NORMAL)
-        onDragMove(MIN_HEIGHT.toFloat())
-        releaseAnimator?.cancel()
     }
 
     fun isRefresh():Boolean{
-        return state == RefreshHeaderState.REFRESHING
+        return state == RefreshState.REFRESHING
     }
 
-    /**
-     * 播放改变高度的动画
-     *
-     * @param startHeight startHeight
-     * @param endHeight   endHeight
-     */
-    private fun showHeightAnimator(startHeight: Float, endHeight: Float) {
-        releaseAnimator?.cancel()
-        //不刷新，隐藏
-        releaseAnimator = ValueAnimator.ofFloat(startHeight, endHeight)
-        releaseAnimator?.let {
-            it.duration = 200
-            it.addUpdateListener { animation: ValueAnimator ->
-                val value = animation.animatedValue as Float
-                setVisibleHeight(value)
-            }
-            it.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator) {}
-                override fun onAnimationEnd(animation: Animator) {
-                    if (!isAnimatorCancel) {
-                        when (state) {
-                            RefreshHeaderState.REFRESH_PREPARE -> updateHeaderState(
-                                RefreshHeaderState.REFRESHING
-                            )
-
-                            RefreshHeaderState.REFRESH_FINISH -> updateHeaderState(
-                                RefreshHeaderState.REFRESH_NORMAL
-                            )
-
-                            else -> {}
-                        }
-                    } else {
-                        isAnimatorCancel = false
-                    }
-                }
-
-                override fun onAnimationCancel(animation: Animator) {
-                    isAnimatorCancel = true
-                }
-
-                override fun onAnimationRepeat(animation: Animator) {}
-            })
-            //开启
-            it.start()
-        }
-    }
-
-    open fun getVisibleHeight(): Float {
-        return allOffset
-    }
-
-    protected open fun updateHeaderState(state: RefreshHeaderState) {
+    fun updateHeaderState(state: RefreshState) {
         this.state = state
         when (state) {
-            RefreshHeaderState.REFRESH_NORMAL -> onRefreshNormal()
-            RefreshHeaderState.REFRESH_PREPARE -> onRefreshPrepare()
-            RefreshHeaderState.REFRESH_FINISH -> onRefreshFinish()
-            RefreshHeaderState.REFRESHING -> {
-                if (isNotify) {
-                    onRefreshListener?.onRefresh()
-                }
-                onRefreshing()
-            }
+            RefreshState.REFRESH_NORMAL -> onRefreshNormal()
+            RefreshState.REFRESH_PREPARE -> onRefreshPrepare()
+            RefreshState.REFRESH_FINISH -> onRefreshFinish()
+            RefreshState.REFRESHING -> onRefreshing()
         }
     }
 
@@ -259,7 +87,7 @@ abstract class BaseRefreshHeader : LinearLayout {
     abstract fun getMaxHeight(): Int
     abstract fun getContentView(context: Context): View
 
-    fun getState(): RefreshHeaderState {
+    fun getState(): RefreshState {
         return state
     }
 }

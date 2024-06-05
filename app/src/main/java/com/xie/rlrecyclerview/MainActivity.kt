@@ -18,11 +18,11 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private lateinit var adapter: MyAdapter
     private val listData = ArrayList<MyItem>()
-    private  var testType = TestType.TEST_NORMAL
+    private var testType = TestType.TEST_NORMAL
     private lateinit var binding: ActivityMainBinding
     private val dataSource = MyItemDataSource()
 
-    companion object{
+    companion object {
         const val PAGE_SIZE = 30
     }
 
@@ -38,11 +38,13 @@ class MainActivity : AppCompatActivity() {
                     binding.rlRefreshLayout.setRefreshing(true)
                     refreshData()
                 }
+
                 R.id.rb_test_load_more_error -> {
                     testType = TestType.TEST_LOAD_MORE_ERROR
                     binding.rlRefreshLayout.setRefreshing(true)
                     refreshData()
                 }
+
                 R.id.rb_test_last_page -> {
                     testType = TestType.TEST_LOAD_MORE_LAST_PAGE
                     binding.rlRefreshLayout.setRefreshing(true)
@@ -79,31 +81,35 @@ class MainActivity : AppCompatActivity() {
 
         binding.rlRv.adapter = adapter
         //打开下拉刷新开关
-        binding.rlRefreshLayout.setOnRefreshListener(object :OnRefreshListener{
+        binding.rlRefreshLayout.setOnRefreshListener(object : OnRefreshListener {
             override fun onRefresh() {
                 refreshData()
             }
         })
         //打开自动加载开关
         //第二个参数为剩下多少个item未展示时触发下一页的加载
-        binding.rlRv.setAutoLoadMoreEnable(false, 2)
+        binding.rlRv.setAutoLoadMoreEnable(true, 2)
         binding.rlRv.onLoadMoreListener = object : OnLoadMoreListener {
             override fun onLoadMore() {
                 lifecycleScope.launch {
 
-                    when(testType){
+                    when (testType) {
                         TestType.TEST_LOAD_MORE_ERROR -> {
                             delay(2000)
                             binding.rlRv.setRLState(RLRecyclerState.LOAD_MORE_ERROR)
                         }
+
                         TestType.TEST_LOAD_MORE_LAST_PAGE -> {
-                            listData.addAll(getListInfo(false))
+                            val newList = getListInfo(false)
+                            listData.addAll(newList)
                             //用替换数据的方式刷新列表
                             adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
                             binding.rlRv.setRLState(RLRecyclerState.LOAD_MORE_LAST_PAGE)
                         }
-                        else ->{
-                            listData.addAll(getListInfo(false))
+
+                        else -> {
+                            val newList = getListInfo(false)
+                            listData.addAll(newList)
                             //用替换数据的方式刷新列表
                             adapter.updateList(UpdateList(UpdateType.CHANGE_LIST, listData))
                             //刷新或加载完成，隐藏刷新和加载UI
@@ -117,11 +123,12 @@ class MainActivity : AppCompatActivity() {
         refreshData()
     }
 
-    private fun refreshData(){
+    private fun refreshData() {
         //刷新
         lifecycleScope.launch {
+            val newList = getListInfo(true)
             listData.clear()
-            listData.addAll(getListInfo(true))
+            listData.addAll(newList)
             //用替换数据的方式刷新列表
             adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
             //刷新或加载完成，隐藏刷新和加载UI
@@ -130,7 +137,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun getListInfo(isRefresh:Boolean): List<MyItem>{
+    private suspend fun getListInfo(isRefresh: Boolean): List<MyItem> {
         return dataSource.getNewItems(isRefresh, PAGE_SIZE)
     }
 }

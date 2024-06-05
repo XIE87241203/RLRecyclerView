@@ -1,5 +1,7 @@
 package com.xie.librlrecyclerview.view.refresh_layout
 
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
@@ -16,7 +18,10 @@ import androidx.core.view.NestedScrollingParent
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
 import androidx.core.widget.ListViewCompat
+import com.xie.librlrecyclerview.base.BaseRefreshHeader
+import com.xie.librlrecyclerview.other.LogUtil
 import com.xie.librlrecyclerview.other.OnRefreshListener
+import com.xie.librlrecyclerview.other.RefreshState
 import com.xie.librlrecyclerview.view.SimpleRefreshHeader
 import kotlin.math.abs
 
@@ -56,9 +61,17 @@ class RLRefreshLayout @JvmOverloads constructor(
     private var mChildScrollUpCallback: OnChildScrollUpCallback? = null
     private var mCircleViewIndex = -1
 
+    private var refreshState = RefreshState.REFRESH_NORMAL
+    private var releaseAnimator: ValueAnimator? = null
+    private var isAnimatorCancel = false
+    private var onRefreshListener: OnRefreshListener? = null
+    private var mNotify = true
+
     companion object {
         private val LOG_TAG: String = RLRefreshLayout::class.java.getSimpleName()
         private const val INVALID_POINTER = -1
+        private const val REFRESH_HEIGHT_FACTOR: Float = 0.9f//下拉高度超过90%就判定为需要刷新
+        private const val MOVE_RESISTANCE_FACTOR: Float = 0.4f //头部滑动的阻力系数
     }
 
     init {
@@ -66,14 +79,13 @@ class RLRefreshLayout @JvmOverloads constructor(
         mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         //设置不需要绘制
         setWillNotDraw(false)
-        //设置刷新UI可见高
-        mRefreshUIView.setVisibleHeight(0f)
         isChildrenDrawingOrderEnabled = true
-//        嵌套滑动相关
+        //嵌套滑动相关
         mNestedScrollingParentHelper = NestedScrollingParentHelper(this)
         mNestedScrollingChildHelper = NestedScrollingChildHelper(this)
         isNestedScrollingEnabled = true
         addView(mRefreshUIView, 0)
+        reset()
     }
 
 
@@ -161,8 +173,15 @@ class RLRefreshLayout @JvmOverloads constructor(
 
 
     fun reset() {
-        mRefreshUIView.reset()
         mRefreshUIView.visibility = GONE
+        scrollTo(0, 0)
+        updateState(RefreshState.REFRESH_NORMAL)
+        releaseAnimator?.cancel()
+    }
+
+    private fun updateState(state : RefreshState){
+        refreshState = state
+        mRefreshUIView.updateHeaderState(refreshState)
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -182,7 +201,7 @@ class RLRefreshLayout @JvmOverloads constructor(
      * gesture.
      */
     fun setOnRefreshListener(listener: OnRefreshListener?) {
-        mRefreshUIView.onRefreshListener = listener
+        onRefreshListener = listener
     }
 
 
@@ -193,7 +212,25 @@ class RLRefreshLayout @JvmOverloads constructor(
      * @param refreshing Whether or not the view should show refresh progress.
      */
     fun setRefreshing(refreshing: Boolean) {
-        mRefreshUIView.setRefreshing(refreshing)
+        if (refreshing) {
+            if (refreshState != RefreshState.REFRESHING) {
+                if (mRefreshUIView.visibility != VISIBLE) {
+                    mRefreshUIView.visibility = VISIBLE
+                }
+                //开始刷新
+                releaseAnimator?.cancel()
+                mNotify = false
+                updateState(RefreshState.REFRESH_PREPARE)
+                finishSpinner()
+            }
+        } else {
+            if (refreshState != RefreshState.REFRESH_NORMAL) {
+                releaseAnimator?.cancel()
+                mNotify = false
+                updateState(RefreshState.REFRESH_FINISH)
+                finishSpinner()
+            }
+        }
     }
 
     /**
@@ -256,10 +293,6 @@ class RLRefreshLayout @JvmOverloads constructor(
             return false
         }
 
-        if (mRefreshUIView.isBusy()) {
-            return true
-        }
-
         when (action) {
             MotionEvent.ACTION_DOWN -> {
                 mActivePointerId = ev.getPointerId(0)
@@ -295,6 +328,7 @@ class RLRefreshLayout @JvmOverloads constructor(
                 mActivePointerId = INVALID_POINTER
             }
         }
+        Log.i(LOG_TAG, "onInterceptTouchEvent: $mIsBeingDragged")
         return mIsBeingDragged
     }
 
@@ -337,7 +371,8 @@ class RLRefreshLayout @JvmOverloads constructor(
         // Finish the spinner for nested scrolling if we ever consumed any
         // unconsumed nested scroll
         if (mTotalUnconsumed > 0) {
-            finishSpinner(mTotalUnconsumed)
+            mNotify = true
+            finishSpinner()
             mTotalUnconsumed = 0f
         }
         // Dispatch up our nested parent
@@ -351,7 +386,6 @@ class RLRefreshLayout @JvmOverloads constructor(
         dxUnconsumed: Int,
         dyUnconsumed: Int
     ) {
-        Log.i(LOG_TAG, "onNestedScroll dyConsumed:" + dyConsumed + " dyUnconsumed:" + dyUnconsumed)
         // Dispatch up to the nested parent first
         dispatchNestedScroll(
             dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
@@ -364,7 +398,7 @@ class RLRefreshLayout @JvmOverloads constructor(
         // 'offset in window 'functionality to see if we have been moved from the event.
         // This is a decent indication of whether we should take over the event stream or not.
         val dy = dyUnconsumed + mParentOffsetInWindow[1]
-        if (dy < 0 && !canChildScrollUp()) {
+        if (!isBusy() && dy < 0 && !canChildScrollUp()) {
             //列表往上滚并且子view不能往上滚
             mTotalUnconsumed += abs(dy)
             moveSpinner(mTotalUnconsumed)
@@ -376,7 +410,8 @@ class RLRefreshLayout @JvmOverloads constructor(
         // before allowing the list to scroll
         Log.i(LOG_TAG, "onNestedPreScroll dy:" + dy)
         //列表往下滚并且未刷新UI有高度
-        if (dy > 0 && mTotalUnconsumed > 0) {
+        //繁忙时不能做滑动动作
+        if (!isBusy() && dy > 0 && mTotalUnconsumed > 0) {
             if (dy > mTotalUnconsumed) {
                 //下滑大小比高度大
                 //消耗掉对应的高度
@@ -470,20 +505,111 @@ class RLRefreshLayout @JvmOverloads constructor(
 
     private fun moveSpinner(overscrollTop: Float) {
         //滑动指示器
-        mRefreshUIView.onDragMove(overscrollTop)
         if (mRefreshUIView.visibility != VISIBLE) {
             mRefreshUIView.visibility = VISIBLE
         }
-        // TODO:控制scroll而非头部，添加max逻辑
-        scrollTo(0,-overscrollTop.toInt())
+        //刷新中，刷新完成归位时不能拖动
+        if (isBusy()) return
+        releaseAnimator?.let { if (it.isStarted) it.cancel() }
+
+        var tempHeight: Int = (overscrollTop * MOVE_RESISTANCE_FACTOR).toInt()
+        val refreshMaxHeight = mRefreshUIView.getMaxHeight()
+        if (refreshMaxHeight != -1 && tempHeight > refreshMaxHeight) {
+            tempHeight = refreshMaxHeight
+        }
+        scrollTo(0, -tempHeight)
+        Log.i(LOG_TAG, "onDragMove: refreshState:$refreshState allOffset:$tempHeight");
+        if (tempHeight >= mRefreshUIView.getRefreshingContentHeight() * REFRESH_HEIGHT_FACTOR) {
+            //达到刷新需要高度（完全展示内容）
+            if (refreshState != RefreshState.REFRESH_PREPARE) {
+                updateState(RefreshState.REFRESH_PREPARE)
+            }
+        } else {
+            //没达到刷新需要高度
+            if (refreshState != RefreshState.REFRESH_NORMAL) {
+                updateState(RefreshState.REFRESH_NORMAL)
+            }
+        }
     }
 
-    private fun finishSpinner(overscrollTop: Float) {
-        Log.i(LOG_TAG, "finishSpinner: " + overscrollTop)
-        // TODO: 使用动画来控制scroll而非头部
-        scrollTo(0,0)
-        mRefreshUIView.onRelease()
+    private fun finishSpinner() {
+        val offset = -scrollY
+        Log.i(LOG_TAG, "finishSpinner: $offset")
+        if (refreshState == RefreshState.REFRESHING) return
+        //判断是否可以开始刷新
+        if (refreshState == RefreshState.REFRESH_PREPARE) {
+            //开始刷新
+            val startHeight = offset
+            val endHeight = mRefreshUIView.getRefreshingContentHeight()
+            updateState(RefreshState.REFRESH_PREPARE)
+            showScrollAnimator(startHeight, endHeight)
+        } else {
+            //不到可以刷新的高度
+            val mOffset = offset
+            if (mOffset == BaseRefreshHeader.MIN_HEIGHT) {
+                //不需要播放动画
+                updateState(RefreshState.REFRESH_NORMAL)
+            } else {
+                //播放动画
+                showScrollAnimator(mOffset, BaseRefreshHeader.MIN_HEIGHT)
+            }
+        }
     }
+
+
+    /**
+     * 播放滚动的动画
+     *
+     * @param startHeight startHeight
+     * @param endHeight   endHeight
+     */
+    private fun showScrollAnimator(startHeight: Int, endHeight: Int) {
+        releaseAnimator?.cancel()
+        releaseAnimator = ValueAnimator.ofInt(startHeight, endHeight)
+        releaseAnimator?.let {
+            it.duration = 200
+            it.addUpdateListener { animation: ValueAnimator ->
+                val value = animation.animatedValue as Int
+                scrollTo(0, -value)
+            }
+            it.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(animation: Animator) {}
+                override fun onAnimationEnd(animation: Animator) {
+                    if (!isAnimatorCancel) {
+                        when (refreshState) {
+                            RefreshState.REFRESH_PREPARE -> {
+                                updateState(RefreshState.REFRESHING)
+                                if(mNotify){
+                                    onRefreshListener?.onRefresh()
+                                }
+                            }
+
+                            RefreshState.REFRESH_FINISH ->{
+                                updateState(RefreshState.REFRESH_NORMAL)
+                            }
+
+                            else -> {}
+                        }
+                    } else {
+                        isAnimatorCancel = false
+                    }
+                }
+
+                override fun onAnimationCancel(animation: Animator) {
+                    isAnimatorCancel = true
+                }
+
+                override fun onAnimationRepeat(animation: Animator) {}
+            })
+            //开启
+            it.start()
+        }
+    }
+
+    private fun isBusy(): Boolean {
+        return refreshState == RefreshState.REFRESHING || refreshState == RefreshState.REFRESH_FINISH
+    }
+
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         val action = ev.actionMasked
@@ -493,9 +619,6 @@ class RLRefreshLayout @JvmOverloads constructor(
         ) {
             // Fail fast if we're not in a state where a swipe is possible
             return false
-        }
-        if (mRefreshUIView.isBusy()) {
-            return true
         }
 
         when (action) {
@@ -550,7 +673,8 @@ class RLRefreshLayout @JvmOverloads constructor(
                     val y = ev.getY(pointerIndex)
                     val overscrollTop = (y - mInitialMotionY)
                     mIsBeingDragged = false
-                    finishSpinner(overscrollTop)
+                    mNotify = true
+                    finishSpinner()
                 }
                 mActivePointerId = INVALID_POINTER
                 return false
@@ -558,6 +682,7 @@ class RLRefreshLayout @JvmOverloads constructor(
 
             MotionEvent.ACTION_CANCEL -> return false
         }
+        Log.i(LOG_TAG, "onTouchEvent: $mIsBeingDragged")
         return true
     }
 

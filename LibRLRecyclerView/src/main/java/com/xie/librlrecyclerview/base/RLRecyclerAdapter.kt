@@ -155,7 +155,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         }
     }
 
-    open fun getListData(): MutableList<T> {
+    open fun getListData(): List<T> {
         return dataHelper.listData
     }
 

@@ -2,20 +2,11 @@ package com.xie.librlrecyclerview.view
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
-import android.view.MotionEvent
-import android.view.View
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.xie.librlrecyclerview.base.BaseLoadMoreFooter
-import com.xie.librlrecyclerview.base.BaseRefreshHeader
 import com.xie.librlrecyclerview.base.RLRecyclerAdapter
-import com.xie.librlrecyclerview.other.LogUtil
 import com.xie.librlrecyclerview.other.OnLoadMoreListener
-import com.xie.librlrecyclerview.other.OnRefreshListener
 import com.xie.librlrecyclerview.other.RLRecyclerState
-import com.xie.librlrecyclerview.other.RefreshHeaderState
 
 /**
  * Created by Anthony on 2020/9/4.
