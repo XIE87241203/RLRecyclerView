@@ -6,7 +6,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.xie.librlrecyclerview.recycler_view.model.UpdateList
-import com.xie.librlrecyclerview.other.*
 import com.xie.librlrecyclerview.recycler_view.other.LogUtil
 import com.xie.librlrecyclerview.recycler_view.other.OnLoadMoreListener
 import com.xie.librlrecyclerview.recycler_view.other.OnRefreshListener
@@ -33,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        binding.rlRefreshLayout.setRefreshView(TestRefreshView(this))
         binding.rgTest.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.rb_test_normal -> {

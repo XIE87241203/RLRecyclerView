@@ -2,6 +2,7 @@ package com.xie.librlrecyclerview.refresh_layout
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -79,5 +80,10 @@ abstract class BaseRefreshHeader : LinearLayout {
 
     fun getState(): RefreshState {
         return state
+    }
+
+    fun dpToPx(context: Context, valueInDp: Float): Float {
+        val metrics = context.resources.displayMetrics
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, metrics)
     }
 }

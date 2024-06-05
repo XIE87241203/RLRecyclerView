@@ -54,7 +54,7 @@ class RLRefreshLayout @JvmOverloads constructor(
     private var mInitialDownY = 0f
     private var mIsBeingDragged = false
     private var mActivePointerId = INVALID_POINTER
-    private val mRefreshUIView: SimpleRefreshHeader by lazy { SimpleRefreshHeader(context) }
+    private var mRefreshUIView: BaseRefreshHeader = SimpleRefreshHeader(context)
     private var mChildScrollUpCallback: OnChildScrollUpCallback? = null
     private var mCircleViewIndex = -1
 
@@ -83,6 +83,13 @@ class RLRefreshLayout @JvmOverloads constructor(
         isNestedScrollingEnabled = true
         addView(mRefreshUIView, 0)
         reset()
+    }
+
+    fun setRefreshView(refreshHeader: BaseRefreshHeader) {
+        reset()
+        removeView(mRefreshUIView)
+        mRefreshUIView = refreshHeader
+        addView(mRefreshUIView, 0)
     }
 
 
@@ -176,7 +183,7 @@ class RLRefreshLayout @JvmOverloads constructor(
         releaseAnimator?.cancel()
     }
 
-    private fun updateState(state : RefreshState){
+    private fun updateState(state: RefreshState) {
         refreshState = state
         mRefreshUIView.updateHeaderState(refreshState)
     }
@@ -576,12 +583,12 @@ class RLRefreshLayout @JvmOverloads constructor(
                         when (refreshState) {
                             RefreshState.REFRESH_PREPARE -> {
                                 updateState(RefreshState.REFRESHING)
-                                if(mNotify){
+                                if (mNotify) {
                                     onRefreshListener?.onRefresh()
                                 }
                             }
 
-                            RefreshState.REFRESH_FINISH ->{
+                            RefreshState.REFRESH_FINISH -> {
                                 updateState(RefreshState.REFRESH_NORMAL)
                             }
 

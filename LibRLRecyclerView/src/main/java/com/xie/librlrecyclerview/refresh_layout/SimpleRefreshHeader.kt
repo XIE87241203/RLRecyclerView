@@ -43,9 +43,4 @@ class SimpleRefreshHeader(context: Context) : BaseRefreshHeader(context) {
         textView.setText(R.string.refresh_header_continue_drop_tips)
     }
 
-    fun dpToPx(context: Context, valueInDp: Float): Float {
-        val metrics = context.resources.displayMetrics
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, metrics)
-    }
-
 }
