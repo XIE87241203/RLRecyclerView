@@ -1,6 +1,14 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+static def releaseTime(){
+    return new Date().format("yyyyMMdd",TimeZone.getTimeZone("UTC"))
+}
+
+static def releaseVersion(){
+    return "1.0"
+}
+
 android {
 
     defaultConfig {
@@ -30,6 +38,12 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17
     }
+
+    android.libraryVariants.configureEach { variant ->
+        variant.outputs.all {
+            outputFileName = "RLRecyclerView-" + releaseVersion() + "-" + releaseTime() +".aar"
+        }
+    }
 }
 
 dependencies {
@@ -47,6 +61,7 @@ task androidSourcesJar(type: Jar) {
     archiveClassifier.set("sources")
     from android.sourceSets.main.java.srcDirs
 }
+
 artifacts {
     archives androidSourcesJar
 }
