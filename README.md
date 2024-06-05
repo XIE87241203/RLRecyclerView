@@ -1,13 +1,54 @@
 RLRecyclerView
 =====
-RLRecyclerView 是一个带有下拉刷新和自动加载，同时支持添加Header和Footer功能的RecyclerView
+本库包含RLRecyclerView和RLRefreshLayout两个控件
+
+其中
+
+1、RLRefreshLayout是一个带有下拉刷新功能的ViewGroup
+
+2、RLRecyclerView 是一个带有自动加载功能的RecyclerView
+
+两者可组合使用
 
 使用方法
-=====
+======
+
+1、RLRefreshLayout：
+====
+1、添加RLRefreshLayout
+```xml
+    <com.xie.librlrecyclerview.refresh_layout.RLRefreshLayout
+        android:id="@+id/rl_refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--    加入其他控件，这里使用RLRecyclerView做例子    -->
+        <com.xie.librlrecyclerview.recycler_view.RLRecyclerView
+            android:id="@+id/rl_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </com.xie.librlrecyclerview.refresh_layout.RLRefreshLayout>
+```
+或者使用代码生成对象
+```kotlin
+//或者      
+//代码生成对象
+val newRLRefreshLayout = RLRefreshLayout(context)
+```
+RLRefreshLayout内能且只能有第一个View作为目标，执行下拉刷新
+
+2、为RLRefreshLayout设置刷新指示控件
+
+RLRefreshLayout的刷新指示控件必须继承BaseRefreshHeader并实现所有方法。
+
+然后使用RLRefreshLayout.setRefreshView(refreshHeader: BaseRefreshHeader)应用到RLRefreshLayout中。
+
+
+2、RLRefreshLayout：
+====
 1、布局文件中或通过代码动态使用RLRecyclerView
 -----
 ```xml
-//布局文件中添加
 <com.xie.librlrecyclerview.view.RLRecyclerView
         android:id="@+id/rl_rv"
         android:layout_width="match_parent"
@@ -51,19 +92,6 @@ class MyAdapter : RLRecyclerAdapter<String>() {
 ```kotlin
  rl_rv.layoutManager = StaggeredGridLayoutManager(2, RecyclerView.VERTICAL)
  rl_rv.adapter = MyAdapter()
-  //打开下拉刷新开关
- rl_rv.refreshEnable = true
- //设置下拉刷新回调
- rl_rv.onRefreshListener = object : OnRefreshListener {
-      override fun onRefresh() {
-          //刷新列表
-          ...
-          //用替换数据的方式刷新列表，listData为整个列表数据的Arraylist
-          adapter.updateList(UpdateList(UpdateType.REFRESH_LIST, listData))
-          //刷新或加载完成，隐藏刷新和加载UI
-          rl_rv.setRLState(RLRecyclerState.NORMAL)
-      }
- }
  
   //打开自动加载开关
   //第二个参数为剩下多少个item未展示时触发下一页的加载
