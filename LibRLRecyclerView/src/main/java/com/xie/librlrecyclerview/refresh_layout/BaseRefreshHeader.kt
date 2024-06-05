@@ -19,6 +19,7 @@ abstract class BaseRefreshHeader : LinearLayout {
     }
 
     internal var state = RefreshState.REFRESH_NORMAL
+    private var contentHeight:Int = 0
 
     constructor(context: Context) : super(context) {
         initView(context)
@@ -38,9 +39,10 @@ abstract class BaseRefreshHeader : LinearLayout {
 
     open fun initView(context: Context) {
         val contentView = getContentView(context)
+        contentHeight = getRefreshingContentHeight()
         val lp = LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            getRefreshingContentHeight()
+            contentHeight
         )
         lp.gravity = Gravity.BOTTOM
         addView(contentView, lp)
@@ -68,7 +70,11 @@ abstract class BaseRefreshHeader : LinearLayout {
     /**
      * 获取刷新时布局内容的高度
      */
-    abstract fun getRefreshingContentHeight(): Int
+    protected abstract fun getRefreshingContentHeight(): Int
+
+    fun getContentHeight():Int{
+        return contentHeight
+    }
 
     /**
      * 获取刷新布局最大下拉高度，-1为无限大

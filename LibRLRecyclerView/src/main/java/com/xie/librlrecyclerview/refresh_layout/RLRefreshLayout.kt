@@ -514,7 +514,7 @@ class RLRefreshLayout @JvmOverloads constructor(
         }
         scrollTo(0, -tempHeight)
         Log.i(LOG_TAG, "onDragMove: refreshState:$refreshState allOffset:$tempHeight");
-        if (tempHeight >= mRefreshUIView.getRefreshingContentHeight() * REFRESH_HEIGHT_FACTOR) {
+        if (tempHeight >= mRefreshUIView.getContentHeight() * REFRESH_HEIGHT_FACTOR) {
             //达到刷新需要高度（完全展示内容）
             if (refreshState != RefreshState.REFRESH_PREPARE) {
                 updateState(RefreshState.REFRESH_PREPARE)
@@ -535,7 +535,7 @@ class RLRefreshLayout @JvmOverloads constructor(
         if (refreshState == RefreshState.REFRESH_PREPARE) {
             //开始刷新
             val startHeight = offset
-            val endHeight = mRefreshUIView.getRefreshingContentHeight()
+            val endHeight = mRefreshUIView.getContentHeight()
             updateState(RefreshState.REFRESH_PREPARE)
             showScrollAnimator(startHeight, endHeight)
         } else {
