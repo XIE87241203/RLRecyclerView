@@ -72,7 +72,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
     abstract fun onBindViewHolderNew(holder: BaseRecyclerViewHolder, position: Int)
     abstract fun getItemViewTypeNew(position: Int): Int
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder {
+    final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseRecyclerViewHolder {
         val headerView = mHeaderViews[viewType]
         if (headerView != null) {
             //头部
@@ -88,7 +88,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         return onCreateViewHolderNew(parent, viewType)
     }
 
-    override fun getItemViewType(position: Int): Int {
+    final override fun getItemViewType(position: Int): Int {
         if (isHeaderViewPos(position)) {
             return mHeaderViews.keyAt(position)
         } else if (isFooterViewPos(position)) {
@@ -97,7 +97,7 @@ abstract class RLRecyclerAdapter<T> : RecyclerView.Adapter<BaseRecyclerViewHolde
         return getItemViewTypeNew(position - getHeadersCount())
     }
 
-    override fun onBindViewHolder(holder: BaseRecyclerViewHolder, position: Int) {
+    final override fun onBindViewHolder(holder: BaseRecyclerViewHolder, position: Int) {
         if (isHeaderViewPos(position)) {
             return
         }
