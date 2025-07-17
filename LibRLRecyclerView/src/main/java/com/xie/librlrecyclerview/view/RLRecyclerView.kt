@@ -103,6 +103,7 @@ open class RLRecyclerView : RecyclerView {
         }
     }
 
+    //enable为true,key为-1时会初始化加载脚部，但不会自动加载，可以通过调用startLoadMore()手动加载
     fun setAutoLoadMoreEnable(enable: Boolean, key: Int) {
         loadMoreKey = key
         autoLoadMoreEnable = enable
